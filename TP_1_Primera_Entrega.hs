@@ -10,8 +10,9 @@ billeterainicial :: Float
 
 
 pepe = Usuario "Jose" 10
+pepe2 = Usuario "Jose" 20
 lucho = Usuario "Luciano" 2
-
+luxito =Usuario "Jorge" 5
 
 deposito dineroAdepositar usuario =
   usuario{billeterainicial = billeterainicial usuario + dineroAdepositar}
@@ -40,6 +41,23 @@ transacción1 usuario
 transacción2 usuario
   | verificarUsuario usuario pepe = deposito 5 usuario
   | otherwise = quedaIgual usuario
+
+transacción3 usuario
+ | verificarUsuario usuario lucho = tocoYMevoy usuario
+ | otherwise = quedaIgual usuario
+
+transacción4 usuario
+ |verificarUsuario usuario lucho = ahorranteErrante usuario
+ | otherwise = quedaIgual usuario
+
+
+transacción5 usuario
+  | verificarUsuario usuario lucho = deposito 7 usuario
+  | verificarUsuario usuario pepe = extraccion 7 usuario
+  | otherwise = quedaIgual usuario
+
+tocoYMevoy usuario = (cierreDeCuenta . update . deposito 15) usuario
+ahorranteErrante usuario  = (deposito 10 . update . deposito 8 . extraccion 1 . deposito 2 . deposito 1) usuario
 
 -- ############# comentarios de las consultas ########################
 {-
@@ -73,4 +91,16 @@ transacción2 usuario
 10)
 *Main> billeterainicial ((update.extraccion 2.deposito 15) pepe)
 27.6
+11)
+*Main> transacción1 pepe
+Usuario {nombre = "Jose", billeterainicial = 10.0}
+12)
+*Main> transacción2 pepe
+Usuario {nombre = "Jose", billeterainicial = 15.0}
+*Main> transacción5 pepe
+Usuario {nombre = "Jose", billeterainicial = 3.0}
+*Main> transacción5 lucho
+Usuario {nombre = "Luciano", billeterainicial = 9.0}
+
+
  -}
