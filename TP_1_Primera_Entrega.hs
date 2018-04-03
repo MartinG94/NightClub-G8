@@ -30,3 +30,36 @@ cierreDeCuenta usuario =
           usuario { billeterainicial = 0}
 
 quedaIgual usuario = usuario
+
+{-
+1)
+*Main> billeterainicial (deposito 10 pepe)
+20.0
+2)
+*Main> billeterainicial (extraccion 3 pepe)
+7.0
+3)
+*Main> billeterainicial (extraccion 15 pepe)
+0.0
+4)
+*Main> billeterainicial (update pepe)
+12.0
+5)
+*Main> billeterainicial (cierreDeCuenta pepe)
+0.0
+6)
+*Main> billeterainicial (quedaIgual pepe)
+10.0
+7)
+*Main> billeterainicial ((update.deposito 1000) pepe)
+1020.0
+8)
+*Main> billeterainicial pepe
+10.0
+9)
+*Main> billeterainicial (cierreDeCuenta pepe)
+0.0
+10)
+*Main> billeterainicial ((update.extraccion 2.deposito 15) pepe)
+27.6
+ -}
