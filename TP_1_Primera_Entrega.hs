@@ -31,6 +31,17 @@ cierreDeCuenta usuario =
 
 quedaIgual usuario = usuario
 
+verificarUsuario usuario usuarioAComparar = nombre usuario == nombre usuarioAComparar
+
+transacción1 usuario
+   | verificarUsuario usuario lucho  = cierreDeCuenta usuario
+   | otherwise = quedaIgual usuario
+
+transacción2 usuario
+  | verificarUsuario usuario pepe = deposito 5 usuario
+  | otherwise = quedaIgual usuario
+
+-- ############# comentarios de las consultas ########################
 {-
 1)
 *Main> billeterainicial (deposito 10 pepe)
