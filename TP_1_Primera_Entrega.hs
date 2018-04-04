@@ -3,33 +3,36 @@ import Text.Show.Functions
 import Data.List
 import Data.Maybe
 
+type Dinero = Float
+type Evento = Usuario -> Usuario
+
 data Usuario = Usuario {
 nombre :: String,
-billeterainicial :: Float
+billetera :: Dinero
 } deriving(Show,Eq)
 
+nuevoSaldo otroSaldo usuario = usuario {billetera = otroSaldo}
 
-pepe = Usuario "Jose" 10
-pepe2 = Usuario "Jose" 20
-lucho = Usuario "Luciano" 2
-luxito =Usuario "Jorge" 5
+pepe = Usuario {nombre = "Jose", billetera = 10}
+lucho = Usuario {nombre = "Luciano", billetera = 2}
 
-deposito dineroAdepositar usuario =
-  usuario{billeterainicial = billeterainicial usuario + dineroAdepositar}
+deposito :: Dinero -> Evento
+deposito dineroDepositado usuario = nuevoSaldo (billetera usuario + dineroDepositado) usuario
 
-extraccion dineroAretirar usuario =
- usuario {billeterainicial =max 0 (billeterainicial usuario - dineroAretirar) }
+extraccion :: Dinero -> Evento
+extraccion dineroARetirar usuario = nuevoSaldo ( max 0 (billetera usuario - dineroARetirar) ) usuario
+
+update :: Evento
+update usuario = nuevoSaldo (billetera usuario + verificarUpdate usuario) usuario
 
 verificarUpdate usuario
-      | (billeterainicial usuario)  * 0.2 > 10 = 10
-      | otherwise = (billeterainicial usuario) * 0.2
+      | billetera usuario * 0.2 > 10 = 10
+      | otherwise = billetera usuario * 0.2
 
-update usuario =
-     usuario { billeterainicial = billeterainicial usuario + (verificarUpdate usuario)}
+cierreDeCuenta :: Evento
+cierreDeCuenta usuario = nuevoSaldo 0 usuario
 
-cierreDeCuenta usuario =
-          usuario { billeterainicial = 0}
-
+quedaIgual :: Evento
 quedaIgual usuario = usuario
 
 verificarUsuario usuario usuarioAComparar = nombre usuario == nombre usuarioAComparar
