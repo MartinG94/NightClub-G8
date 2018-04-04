@@ -2,6 +2,7 @@
 import Text.Show.Functions
 import Data.List
 import Data.Maybe
+{- Falta agregar Import Test.Hspect -}
 
 type Dinero = Float
 type Evento = Usuario -> Usuario
@@ -22,10 +23,10 @@ deposito dineroDepositado usuario = nuevoSaldo (billetera usuario + dineroDeposi
 extraccion :: Dinero -> Evento
 extraccion dineroARetirar usuario = nuevoSaldo ( max 0 (billetera usuario - dineroARetirar) ) usuario
 
-update :: Evento
-update usuario = nuevoSaldo (billetera usuario + verificarUpdate usuario) usuario
+upgrade :: Evento
+upgrade usuario = nuevoSaldo (billetera usuario + verificarUgrate usuario) usuario
 
-verificarUpdate usuario
+verificarUgrate usuario
       | billetera usuario * 0.2 > 10 = 10
       | otherwise = billetera usuario * 0.2
 
@@ -59,8 +60,8 @@ transacción5 usuario
   | verificarUsuario usuario pepe = extraccion 7 usuario
   | otherwise = quedaIgual usuario
 
-tocoYMevoy usuario = (cierreDeCuenta . update . deposito 15) usuario
-ahorranteErrante usuario  = (deposito 10 . update . deposito 8 . extraccion 1 . deposito 2 . deposito 1) usuario
+tocoYMevoy usuario = (cierreDeCuenta . upgrade . deposito 15) usuario
+ahorranteErrante usuario  = (deposito 10 . upgrade . deposito 8 . extraccion 1 . deposito 2 . deposito 1) usuario
 
 -- ############# comentarios de las consultas ########################
 {-
