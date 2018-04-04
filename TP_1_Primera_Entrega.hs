@@ -4,18 +4,22 @@ import Data.List
 import Data.Maybe
 {- Falta agregar Import Test.Hspect -}
 
+type Nombre -> String
 type Dinero = Float
 type Evento = Usuario -> Usuario
+type Transacción = Usuario -> Evento
 
 data Usuario = Usuario {
-nombre :: String,
+nombre :: Nombre,
 billetera :: Dinero
 } deriving(Show,Eq)
 
 nuevoSaldo otroSaldo usuario = usuario {billetera = otroSaldo}
 
 pepe = Usuario {nombre = "Jose", billetera = 10}
+pepe2 = Usuario {nombre = "Jose", billetera = 20}
 lucho = Usuario {nombre = "Luciano", billetera = 2}
+luxito = Usuario {nombre = "Jorge", billetera = 5}
 
 deposito :: Dinero -> Evento
 deposito dineroDepositado usuario = nuevoSaldo (billetera usuario + dineroDepositado) usuario
@@ -24,9 +28,9 @@ extraccion :: Dinero -> Evento
 extraccion dineroARetirar usuario = nuevoSaldo ( max 0 (billetera usuario - dineroARetirar) ) usuario
 
 upgrade :: Evento
-upgrade usuario = nuevoSaldo (billetera usuario + verificarUgrate usuario) usuario
+upgrade usuario = nuevoSaldo (billetera usuario + verificarUgrade usuario) usuario
 
-verificarUgrate usuario
+verificarUpgrade usuario
       | billetera usuario * 0.2 > 10 = 10
       | otherwise = billetera usuario * 0.2
 
@@ -36,32 +40,39 @@ cierreDeCuenta usuario = nuevoSaldo 0 usuario
 quedaIgual :: Evento
 quedaIgual usuario = usuario
 
-verificarUsuario usuario usuarioAComparar = nombre usuario == nombre usuarioAComparar
+verificarUsuario usuarioAComparar usuario = nombre usuarioAComparar == nombre usuario
 
+transacción1 :: Transacción
 transacción1 usuario
-   | verificarUsuario usuario lucho  = cierreDeCuenta usuario
-   | otherwise = quedaIgual usuario
+      | verificarUsuario lucho usuario = cierreDeCuenta
+      | otherwise = quedaIgual
 
+transacción2 :: Transacción
 transacción2 usuario
-  | verificarUsuario usuario pepe = deposito 5 usuario
-  | otherwise = quedaIgual usuario
+      | verificarUsuario pepe usuario = deposito 5
+      | otherwise = quedaIgual
 
-transacción3 usuario
- | verificarUsuario usuario lucho = tocoYMevoy usuario
- | otherwise = quedaIgual usuario
+tocoYMeVoy :: Evento
+tocoYMeVoy usuario = (cierreDeCuenta . upgrade . deposito 15) usuario
 
-transacción4 usuario
- |verificarUsuario usuario lucho = ahorranteErrante usuario
- | otherwise = quedaIgual usuario
-
-
-transacción5 usuario
-  | verificarUsuario usuario lucho = deposito 7 usuario
-  | verificarUsuario usuario pepe = extraccion 7 usuario
-  | otherwise = quedaIgual usuario
-
-tocoYMevoy usuario = (cierreDeCuenta . upgrade . deposito 15) usuario
+ahorranteErrante :: Evento
 ahorranteErrante usuario  = (deposito 10 . upgrade . deposito 8 . extraccion 1 . deposito 2 . deposito 1) usuario
+
+transacción3 :: Transacción
+transacción3 usuario
+      | verificarUsuario lucho usuario = tocoYMeVoy
+      | otherwise = quedaIgual
+
+transacción4 :: Transacción
+transacción4 usuario
+      |verificarUsuario lucho usuario = ahorranteErrante
+      | otherwise = quedaIgual
+
+transacción5 :: Transacción
+transacción5 usuario
+      | verificarUsuario lucho usuario = deposito 7
+      | verificarUsuario pepe usuario = extraccion 7
+      | otherwise = quedaIgual
 
 -- ############# comentarios de las consultas ########################
 {-
