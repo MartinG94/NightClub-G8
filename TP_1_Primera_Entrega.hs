@@ -2,7 +2,7 @@
 import Text.Show.Functions
 import Data.List
 import Data.Maybe
-{- Falta agregar Import Test.Hspect -}
+{- Falta agregar import Test.Hspec -}
 
 type Nombre -> String
 type Dinero = Float
