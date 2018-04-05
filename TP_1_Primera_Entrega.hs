@@ -4,7 +4,7 @@ import Data.List
 import Data.Maybe
 {- Falta agregar import Test.Hspec -}
 
-type Nombre -> String
+type Nombre = String
 type Dinero = Float
 type Evento = Usuario -> Usuario
 type Transacción = Usuario -> Evento
@@ -13,6 +13,8 @@ data Usuario = Usuario {
 nombre :: Nombre,
 billetera :: Dinero
 } deriving(Show,Eq)
+
+nuevoNombre otroNombre usuario = usuario {nombre = otroNombre}
 
 nuevoSaldo otroSaldo usuario = usuario {billetera = otroSaldo}
 
@@ -28,7 +30,7 @@ extraccion :: Dinero -> Evento
 extraccion dineroARetirar usuario = nuevoSaldo ( max 0 (billetera usuario - dineroARetirar) ) usuario
 
 upgrade :: Evento
-upgrade usuario = nuevoSaldo (billetera usuario + verificarUgrade usuario) usuario
+upgrade usuario = nuevoSaldo (billetera usuario + verificarUpgrade usuario) usuario
 
 verificarUpgrade usuario
       | billetera usuario * 0.2 > 10 = 10
