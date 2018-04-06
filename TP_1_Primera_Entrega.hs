@@ -75,49 +75,97 @@ transacción5 usuario
       | verificarUsuario lucho usuario = deposito 7
       | verificarUsuario pepe usuario = extraccion 7
       | otherwise = quedaIgual
-
--- ############# comentarios de las consultas ########################
 {-
+####################################################################
+#  Comentarios de las consultas #
+#####################################################################
+
+######
+###   consultas con una  billetera  de 10 monedas #####
+#####
 1)
-*Main> billeterainicial (deposito 10 pepe)
+*Main> billetera (deposito 10 pepe)
 20.0
 2)
-*Main> billeterainicial (extraccion 3 pepe)
+*Main> billetera (extraccion 3 pepe)
 7.0
 3)
-*Main> billeterainicial (extraccion 15 pepe)
+*Main> billetera (extraccion 15 pepe)
 0.0
 4)
-*Main> billeterainicial (update pepe)
+*Main> billetera (upgrade pepe)
 12.0
 5)
-*Main> billeterainicial (cierreDeCuenta pepe)
+*Main> billetera (cierreDeCuenta pepe)
 0.0
 6)
-*Main> billeterainicial (quedaIgual pepe)
+*Main> billetera (quedaIgual pepe)
 10.0
 7)
-*Main> billeterainicial ((update.deposito 1000) pepe)
+*Main> billetera ((upgrade.deposito 1000) pepe)
 1020.0
+######
+###   Consultas para el usuario pepe #####
+#####
 8)
-*Main> billeterainicial pepe
+*Main> billetera pepe
 10.0
 9)
-*Main> billeterainicial (cierreDeCuenta pepe)
+*Main> billetera (cierreDeCuenta pepe)
 0.0
 10)
-*Main> billeterainicial ((update.extraccion 2.deposito 15) pepe)
+*Main> billetera ((upgrade.extraccion 2.deposito 15) pepe)
 27.6
+######
+###   Consultas  usando las funciones   #####
+###   transacción1 y transacción2       #####
+#####
+
 11)
 *Main> transacción1 pepe
-Usuario {nombre = "Jose", billeterainicial = 10.0}
+<function>
+*Main> billetera(transacción1 pepe pepe2)
+20.0
 12)
 *Main> transacción2 pepe
-Usuario {nombre = "Jose", billeterainicial = 15.0}
+<function>
+*Main> billetera(transacción2 pepe pepe2)
+25.0
+13)
+*Main> transacción2 pepe2
+<function>
+*Main> billetera(transacción2 pepe2 (nuevoSaldo 50 pepe))
+55.0
+######
+###   Consultas  usando las funciones transacción3 y   #####
+###   transacción4 con una billeta de 10 monedas       #####
+#####
+14)
+*Main> transacción3 lucho
+<function>
+*Main> billetera(transacción3 lucho pepe)
+0.0
+15)
+*Main> transacción4 lucho
+<function>
+*Main> billetera(transacción4 lucho pepe)
+34.0
+######
+###   Consultas  usando la funcion transacción5   #####
+###   con una billetera de 10 monedas             #####
+#####
+
+16)
 *Main> transacción5 pepe
-Usuario {nombre = "Jose", billeterainicial = 3.0}
+<function>
+*Main> billetera(transacción5 pepe pepe)
+3.0
+17)
 *Main> transacción5 lucho
-Usuario {nombre = "Luciano", billeterainicial = 9.0}
+<function>
+*Main> billetera(transacción5 lucho pepe)
+17.0
+
 
 
  -}
