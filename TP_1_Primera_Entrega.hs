@@ -77,7 +77,7 @@ transacción5 usuario
       | otherwise = quedaIgual
 
 ejecutarTests = hspec $ do
-      describe "Verificando resultados de los Eventos con una billetera de saldo 10." $ do
+    describe "Verificando resultados de los Eventos con una billetera de saldo 10." $ do
       it "Depositar 10 más: Debería quedar con 20 monedas." $ billetera (deposito 10 pepe) `shouldBe` 20
       it "Extraer 3: Debería quedar con 7 monedas." $ billetera (extraccion 3 pepe) `shouldBe` 7
       it "Extraer 15: Debería quedar con 0 monedas." $ billetera (extraccion 15 pepe) `shouldBe` 0
@@ -85,6 +85,11 @@ ejecutarTests = hspec $ do
       it "Cerrar la cuenta: Debería quedar con 0 monedas." $ billetera (cierreDeCuenta pepe) `shouldBe` 0
       it "Queda igual: Debería quedar con 10 monedas." $ billetera (quedaIgual pepe) `shouldBe` 10
       it "Depositar 1000, y luego tener un upgrade: Debería quedar con 1020 monedas." $ billetera ((upgrade.(deposito 1000)) pepe) `shouldBe` 1020
+
+    describe "Verificando usuarios" $ do
+      it "¿Cuál es la billetera de Pepe?: Debería ser 10 monedas." $ billetera pepe `shouldBe` 10
+      it "¿Cuál es la billetera de Pepe, luego de un cierre de su cuenta?: Debería ser 0." $ billetera (cierreDeCuenta pepe) `shouldBe` 0
+      it "¿Cómo quedaría la billetera de Pepe si le depositan 15 monedas, extrae 2, y tiene un Upgrade? Debería quedar en 27.6." $ billetera ((upgrade.extraccion 2.deposito 15) pepe) `shouldBe` 27.6 
 
 {-
 ######
