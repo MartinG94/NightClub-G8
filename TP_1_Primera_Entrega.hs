@@ -89,71 +89,13 @@ ejecutarTests = hspec $ do
     describe "Verificando usuarios" $ do
       it "¿Cuál es la billetera de Pepe?: Debería ser 10 monedas." $ billetera pepe `shouldBe` 10
       it "¿Cuál es la billetera de Pepe, luego de un cierre de su cuenta?: Debería ser 0." $ billetera (cierreDeCuenta pepe) `shouldBe` 0
-      it "¿Cómo quedaría la billetera de Pepe si le depositan 15 monedas, extrae 2, y tiene un Upgrade? Debería quedar en 27.6." $ billetera ((upgrade.extraccion 2.deposito 15) pepe) `shouldBe` 27.6 
+      it "¿Cómo quedaría la billetera de Pepe si le depositan 15 monedas, extrae 2, y tiene un Upgrade? Debería quedar en 27.6." $ billetera ((upgrade.extraccion 2.deposito 15) pepe) `shouldBe` 27.6
 
-{-
-######
-###   Consultas para el usuario pepe #####
-#####
-8)
-*Main> billetera pepe
-10.0
-9)
-*Main> billetera (cierreDeCuenta pepe)
-0.0
-10)
-*Main> billetera ((upgrade.extraccion 2.deposito 15) pepe)
-27.6
-######
-###   Consultas  usando las funciones   #####
-###   transacción1 y transacción2       #####
-#####
-
-11)
-*Main> transacción1 pepe
-<function>
-*Main> billetera(transacción1 pepe pepe2)
-20.0
-12)
-*Main> transacción2 pepe
-<function>
-*Main> billetera(transacción2 pepe pepe2)
-25.0
-13)
-*Main> transacción2 pepe2
-<function>
-*Main> billetera(transacción2 pepe2 (nuevoSaldo 50 pepe))
-55.0
-######
-###   Consultas  usando las funciones transacción3 y   #####
-###   transacción4 con una billeta de 10 monedas       #####
-#####
-14)
-*Main> transacción3 lucho
-<function>
-*Main> billetera(transacción3 lucho pepe)
-0.0
-15)
-*Main> transacción4 lucho
-<function>
-*Main> billetera(transacción4 lucho pepe)
-34.0
-######
-###   Consultas  usando la funcion transacción5   #####
-###   con una billetera de 10 monedas             #####
-#####
-
-16)
-*Main> transacción5 pepe
-<function>
-*Main> billetera(transacción5 pepe pepe)
-3.0
-17)
-*Main> transacción5 lucho
-<function>
-*Main> billetera(transacción5 lucho pepe)
-17.0
-
-
-
- -}
+    describe "Verificando transacciones" $ do
+      it "Aplicar la transacción 1 a Pepe. Esto debería producir el evento “Queda igual”, que si se aplicara a una billetera de 20 monedas, deberá dar una billetera con ese mismo monto." $ billetera (transacción1 pepe pepe2) `shouldBe` 20
+      it "Aplicar la transacción 2 a Pepe. El resultado, deberá ser el evento de depositar 5 monedas. Aplicarlo a una billetera de 10 monedas, mostrando que queda con 15." $ billetera (transacción2 pepe pepe) `shouldBe` 15
+      it "Aplicar la transacción 2 al nuevo Pepe. Aplicar el evento resultante a una billetera de 50 monedas, y verificar que aumenta quedando con 55." $ billetera(transacción2 pepe2 (nuevoSaldo 50 pepe)) `shouldBe` 55
+      it "Aplicar la transacción 3 a Lucho. Ver cómo queda una billetera inicial de 10 monedas. Debería quedar con 0" $ billetera(transacción3 lucho pepe)  `shouldBe` 0
+      it "Aplicar la transacción 4 a Lucho. Ver cómo queda una billetera inicial de 10 monedas. Debería quedar con 34" $ billetera(transacción4 lucho pepe)  `shouldBe` 34
+      it "Aplicar la transacción 5 a Pepe. Debería causar el evento de extracción de 7 unidades. Al aplicarlo a una billetera de 10 monedas, debería dar una nueva billetera de 3." $ billetera(transacción5 pepe pepe) `shouldBe` 3
+      it "Aplicar la transacción 5 a Lucho. Debería causar el evento de depósito de 7 unidades. Al aplicarlo a una billetera de 10 monedas, quedando con 17." $ billetera(transacción5 lucho pepe) `shouldBe` 17
