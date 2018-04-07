@@ -2,7 +2,7 @@
 import Text.Show.Functions
 import Data.List
 import Data.Maybe
-{- Falta agregar import Test.Hspec -}
+import Test.Hspec
 
 type Nombre = String
 type Dinero = Float
@@ -75,35 +75,18 @@ transacción5 usuario
       | verificarUsuario lucho usuario = deposito 7
       | verificarUsuario pepe usuario = extraccion 7
       | otherwise = quedaIgual
-{-
-####################################################################
-#  Comentarios de las consultas #
-#####################################################################
 
-######
-###   consultas con una  billetera  de 10 monedas #####
-#####
-1)
-*Main> billetera (deposito 10 pepe)
-20.0
-2)
-*Main> billetera (extraccion 3 pepe)
-7.0
-3)
-*Main> billetera (extraccion 15 pepe)
-0.0
-4)
-*Main> billetera (upgrade pepe)
-12.0
-5)
-*Main> billetera (cierreDeCuenta pepe)
-0.0
-6)
-*Main> billetera (quedaIgual pepe)
-10.0
-7)
-*Main> billetera ((upgrade.deposito 1000) pepe)
-1020.0
+ejecutarTests = hspec $ do
+      describe "Verificando resultados de los Eventos con una billetera de saldo 10." $ do
+      it "Depositar 10 más: Debería quedar con 20 monedas." $ billetera (deposito 10 pepe) `shouldBe` 20
+      it "Extraer 3: Debería quedar con 7 monedas." $ billetera (extraccion 3 pepe) `shouldBe` 7
+      it "Extraer 15: Debería quedar con 0 monedas." $ billetera (extraccion 15 pepe) `shouldBe` 0
+      it "Un upgrade: Debería quedar con 12 monedas." $ billetera (upgrade pepe) `shouldBe` 12
+      it "Cerrar la cuenta: Debería quedar con 0 monedas." $ billetera (cierreDeCuenta pepe) `shouldBe` 0
+      it "Queda igual: Debería quedar con 10 monedas." $ billetera (quedaIgual pepe) `shouldBe` 10
+      it "Depositar 1000, y luego tener un upgrade: Debería quedar con 1020 monedas." $ billetera ((upgrade.(deposito 1000)) pepe) `shouldBe` 1020
+
+{-
 ######
 ###   Consultas para el usuario pepe #####
 #####
