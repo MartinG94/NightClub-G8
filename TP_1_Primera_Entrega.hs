@@ -78,24 +78,24 @@ transacción5 usuario
 
 ejecutarTests = hspec $ do
     describe "Verificando resultados de los Eventos con una billetera de saldo 10." $ do
-      it "Depositar 10 más: Debería quedar con 20 monedas." $ billetera (deposito 10 pepe) `shouldBe` 20
-      it "Extraer 3: Debería quedar con 7 monedas." $ billetera (extraccion 3 pepe) `shouldBe` 7
-      it "Extraer 15: Debería quedar con 0 monedas." $ billetera (extraccion 15 pepe) `shouldBe` 0
-      it "Un upgrade: Debería quedar con 12 monedas." $ billetera (upgrade pepe) `shouldBe` 12
-      it "Cerrar la cuenta: Debería quedar con 0 monedas." $ billetera (cierreDeCuenta pepe) `shouldBe` 0
-      it "Queda igual: Debería quedar con 10 monedas." $ billetera (quedaIgual pepe) `shouldBe` 10
-      it "Depositar 1000, y luego tener un upgrade: Debería quedar con 1020 monedas." $ billetera ((upgrade.(deposito 1000)) pepe) `shouldBe` 1020
+      it "Al depositar 10, queda con 20." $ billetera (deposito 10 pepe) `shouldBe` 20
+      it "Al extraer 3, queda con 7." $ billetera (extraccion 3 pepe) `shouldBe` 7
+      it "Al extraer 15, queda con 0." $ billetera (extraccion 15 pepe) `shouldBe` 0
+      it "Con un upgrade, queda con 12." $ billetera (upgrade pepe) `shouldBe` 12
+      it "Al cerrar la cuenta, queda con 0." $ billetera (cierreDeCuenta pepe) `shouldBe` 0
+      it "Con queda igual, queda con 10." $ billetera (quedaIgual pepe) `shouldBe` 10
+      it "Al depositar 1000, y luego tener un upgrade, queda con 1020." $ billetera ((upgrade.(deposito 1000)) pepe) `shouldBe` 1020
 
     describe "Verificando usuarios" $ do
-      it "¿Cuál es la billetera de Pepe?: Debería ser 10 monedas." $ billetera pepe `shouldBe` 10
-      it "¿Cuál es la billetera de Pepe, luego de un cierre de su cuenta?: Debería ser 0." $ billetera (cierreDeCuenta pepe) `shouldBe` 0
-      it "¿Cómo quedaría la billetera de Pepe si le depositan 15 monedas, extrae 2, y tiene un Upgrade? Debería quedar en 27.6." $ billetera ((upgrade.extraccion 2.deposito 15) pepe) `shouldBe` 27.6
+      it "La billetera de pepe es de 10." $ billetera pepe `shouldBe` 10
+      it "La billetera de Pepe, luego de un cierre de cuenta, es de 0." $ billetera (cierreDeCuenta pepe) `shouldBe` 0
+      it "La billetera de Pepe si le depositan 15, extrae 2, y tiene un Upgrade, es de 27.6." $ billetera ((upgrade.extraccion 2.deposito 15) pepe) `shouldBe` 27.6
 
     describe "Verificando transacciones" $ do
-      it "Aplicar la transacción 1 a Pepe. Esto debería producir el evento “Queda igual”, que si se aplicara a una billetera de 20 monedas, deberá dar una billetera con ese mismo monto." $ billetera (transacción1 pepe pepe2) `shouldBe` 20
-      it "Aplicar la transacción 2 a Pepe. El resultado, deberá ser el evento de depositar 5 monedas. Aplicarlo a una billetera de 10 monedas, mostrando que queda con 15." $ billetera (transacción2 pepe pepe) `shouldBe` 15
-      it "Aplicar la transacción 2 al nuevo Pepe. Aplicar el evento resultante a una billetera de 50 monedas, y verificar que aumenta quedando con 55." $ billetera(transacción2 pepe2 (nuevoSaldo 50 pepe)) `shouldBe` 55
-      it "Aplicar la transacción 3 a Lucho. Ver cómo queda una billetera inicial de 10 monedas. Debería quedar con 0" $ billetera(transacción3 lucho pepe)  `shouldBe` 0
-      it "Aplicar la transacción 4 a Lucho. Ver cómo queda una billetera inicial de 10 monedas. Debería quedar con 34" $ billetera(transacción4 lucho pepe)  `shouldBe` 34
-      it "Aplicar la transacción 5 a Pepe. Debería causar el evento de extracción de 7 unidades. Al aplicarlo a una billetera de 10 monedas, debería dar una nueva billetera de 3." $ billetera(transacción5 pepe pepe) `shouldBe` 3
-      it "Aplicar la transacción 5 a Lucho. Debería causar el evento de depósito de 7 unidades. Al aplicarlo a una billetera de 10 monedas, quedando con 17." $ billetera(transacción5 lucho pepe) `shouldBe` 17
+      it "Aplicar la transacción 1 a Pepe, esto produce el evento Queda igual, que si se aplica a una billetera de 20, debe dar una billetera con ese mismo monto." $ billetera (transacción1 pepe pepe2) `shouldBe` 20
+      it "Aplicar la transacción 2 a Pepe, esto produce el evento depositar 5, que si se aplica a una billetera de 10, queda con 15." $ billetera (transacción2 pepe pepe) `shouldBe` 15
+      it "Aplicar la transacción 2 al nuevo Pepe,esto produce un evento, que aplicado a una billetera de 50, queda con 55." $ billetera(transacción2 pepe2 (nuevoSaldo 50 pepe)) `shouldBe` 55
+      it "Aplicar la transacción 3 a Lucho. Ver cómo queda una billetera inicial de 10. Debería quedar con 0" $ billetera(transacción3 lucho pepe)  `shouldBe` 0
+      it "Aplicar la transacción 4 a Lucho. Ver cómo queda una billetera inicial de 10. Debería quedar con 34" $ billetera(transacción4 lucho pepe)  `shouldBe` 34
+      it "Aplicar la transacción 5 a Pepe, esto produce el evento de extracción 7. Al aplicarlo a una billetera de 10, debería dar una nueva billetera de 3." $ billetera(transacción5 pepe pepe) `shouldBe` 3
+      it "Aplicar la transacción 5 a Lucho, esto produce el evento de depósito  7. Al aplicarlo a una billetera de 10, debería dar una nueva billetera de 17." $ billetera(transacción5 lucho pepe) `shouldBe` 17
