@@ -55,10 +55,10 @@ transacción2 usuario
       | otherwise = quedaIgual
 
 tocoYMeVoy :: Evento
-tocoYMeVoy usuario = (cierreDeCuenta . upgrade . depósito 15) usuario
+tocoYMeVoy = cierreDeCuenta . upgrade . depósito 15
 
 ahorranteErrante :: Evento
-ahorranteErrante usuario  = (depósito 10 . upgrade . depósito 8 . extracción 1 . depósito 2 . depósito 1) usuario
+ahorranteErrante = depósito 10 . upgrade . depósito 8 . extracción 1 . depósito 2 . depósito 1
 
 transacción3 :: Transacción
 transacción3 usuario
