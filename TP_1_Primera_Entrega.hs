@@ -21,7 +21,6 @@ nuevoSaldo otroSaldo usuario = usuario {billetera = otroSaldo}
 pepe = Usuario {nombre = "José", billetera = 10}
 pepe2 = Usuario {nombre = "José", billetera = 20}
 lucho = Usuario {nombre = "Luciano", billetera = 2}
-luxito = Usuario {nombre = "Jorge", billetera = 5}
 
 depósito :: Dinero -> Evento
 depósito dineroDepositado usuario = nuevoSaldo (billetera usuario + dineroDepositado) usuario
@@ -76,26 +75,47 @@ transacción5 usuario
       | verificarUsuario pepe usuario = extracción 7
       | otherwise = quedaIgual
 
+alguienConBilleteraDeSaldo10 = Usuario "" 10
+alguienConBilleteraDeSaldo20 = Usuario "" 20
+alguienConBilleteraDeSaldo50 = Usuario "" 50
+
 ejecutarTests = hspec $ do
-    describe "Verificando resultados de los Eventos con una billetera de saldo 10." $ do
-      it "Al depositar 10, queda con 20." $ billetera (depósito 10 pepe) `shouldBe` 20
-      it "Al extraer 3, queda con 7." $ billetera (extracción 3 pepe) `shouldBe` 7
-      it "Al extraer 15, queda con 0." $ billetera (extracción 15 pepe) `shouldBe` 0
-      it "Con un upgrade, queda con 12." $ billetera (upgrade pepe) `shouldBe` 12
-      it "Al cerrar la cuenta, queda con 0." $ billetera (cierreDeCuenta pepe) `shouldBe` 0
-      it "Con queda igual, queda con 10." $ billetera (quedaIgual pepe) `shouldBe` 10
-      it "Al depositar 1000, y luego tener un upgrade, queda con 1020." $ billetera ((upgrade.(depósito 1000)) pepe) `shouldBe` 1020
+    describe "Pruebas de los eventos con una billetera de saldo 10." $ do
+      it "1 - Al depositar 10, queda con 20." $
+        billetera (depósito 10 alguienConBilleteraDeSaldo10) `shouldBe` 20
+      it "2 - Al extraer 3, queda con 7." $
+        billetera (extracción 3 alguienConBilleteraDeSaldo10) `shouldBe` 7
+      it "3 - Al extraer 15, queda con 0." $
+        billetera (extracción 15 alguienConBilleteraDeSaldo10) `shouldBe` 0
+      it "4 - Con un upgrade, queda con 12." $
+        billetera (upgrade alguienConBilleteraDeSaldo10) `shouldBe` 12
+      it "5 - Al cerrar la cuenta, queda con 0." $
+        billetera (cierreDeCuenta alguienConBilleteraDeSaldo10) `shouldBe` 0
+      it "6 - Con queda igual, queda con 10." $
+        billetera (quedaIgual alguienConBilleteraDeSaldo10) `shouldBe` 10
+      it "7 - Al depositar 1000, y luego tener un upgrade, queda con 1020." $
+        billetera ((upgrade.(depósito 1000)) alguienConBilleteraDeSaldo10) `shouldBe` 1020
 
     describe "Verificando usuarios" $ do
-      it "La billetera de pepe es de 10." $ billetera pepe `shouldBe` 10
-      it "La billetera de Pepe, luego de un cierre de cuenta, es de 0." $ billetera (cierreDeCuenta pepe) `shouldBe` 0
-      it "La billetera de Pepe si le depositan 15, extrae 2, y tiene un Upgrade, es de 27.6." $ billetera ((upgrade.extracción 2.depósito 15) pepe) `shouldBe` 27.6
+      it "8 - La billetera de pepe es de 10." $
+        billetera pepe `shouldBe` 10
+      it "9 - La billetera de Pepe, luego de un cierre de cuenta, es de 0." $
+        billetera (cierreDeCuenta pepe) `shouldBe` 0
+      it "10 - La billetera de Pepe si le depositan 15, extrae 2, y tiene un Upgrade, es de 27.6." $
+        billetera ((upgrade.extracción 2.depósito 15) pepe) `shouldBe` 27.6
 
-    describe "Verificando transacciones" $ do
-      it "Aplicar la transacción 1 a Pepe, esto produce el evento Queda igual, que si se aplica a una billetera de 20, debe dar una billetera con ese mismo monto." $ billetera (transacción1 pepe pepe2) `shouldBe` 20
-      it "Aplicar la transacción 2 a Pepe, esto produce el evento depositar 5, que si se aplica a una billetera de 10, queda con 15." $ billetera (transacción2 pepe pepe) `shouldBe` 15
-      it "Aplicar la transacción 2 al nuevo Pepe, esto produce un evento, que aplicado a una billetera de 50, queda con 55." $ billetera(transacción2 pepe2 (nuevoSaldo 50 pepe)) `shouldBe` 55
-      it "Aplicar la transacción 3 a Lucho. Ver cómo queda una billetera inicial de 10. Debería quedar con 0" $ billetera(transacción3 lucho pepe)  `shouldBe` 0
-      it "Aplicar la transacción 4 a Lucho. Ver cómo queda una billetera inicial de 10. Debería quedar con 34" $ billetera(transacción4 lucho pepe)  `shouldBe` 34
-      it "Aplicar la transacción 5 a Pepe, esto produce el evento de extracción 7. Al aplicarlo a una billetera de 10, debería dar una nueva billetera de 3." $ billetera(transacción5 pepe pepe) `shouldBe` 3
-      it "Aplicar la transacción 5 a Lucho, esto produce el evento de depósito 7. Al aplicarlo a una billetera de 10, debería dar una nueva billetera de 17." $ billetera(transacción5 lucho pepe) `shouldBe` 17
+    describe "Pruebas con las transacciones" $ do
+      it "11 - Aplicar la transacción 1 a Pepe, esto produce el evento Queda igual, que si se aplica a una billetera de 20, debe dar una billetera con ese mismo monto." $
+        billetera (transacción1 pepe alguienConBilleteraDeSaldo20) `shouldBe` 20
+      it "12 - Aplicar la transacción 2 a Pepe, esto produce el evento depositar 5, que si se aplica a una billetera de 10, queda con 15." $
+        billetera (transacción2 pepe alguienConBilleteraDeSaldo10) `shouldBe` 15
+      it "13 - Aplicar la transacción 2 al nuevo Pepe, esto produce un evento, que aplicado a una billetera de 50, queda con 55." $
+        billetera(transacción2 pepe2 alguienConBilleteraDeSaldo50) `shouldBe` 55
+      it "14 - Aplicar la transacción 3 a Lucho. Ver cómo queda una billetera inicial de 10. Debería quedar con 0" $
+        billetera(transacción3 lucho alguienConBilleteraDeSaldo10)  `shouldBe` 0
+      it "15 - Aplicar la transacción 4 a Lucho. Ver cómo queda una billetera inicial de 10. Debería quedar con 34" $
+        billetera(transacción4 lucho alguienConBilleteraDeSaldo10)  `shouldBe` 34
+      it "16 - Aplicar la transacción 5 a Pepe, esto produce el evento de extracción 7. Al aplicarlo a una billetera de 10, debería dar una nueva billetera de 3." $
+        billetera(transacción5 pepe alguienConBilleteraDeSaldo10) `shouldBe` 3
+      it "17 - Aplicar la transacción 5 a Lucho, esto produce el evento de depósito 7. Al aplicarlo a una billetera de 10, debería dar una nueva billetera de 17." $
+        billetera(transacción5 lucho alguienConBilleteraDeSaldo10) `shouldBe` 17
