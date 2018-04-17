@@ -45,14 +45,23 @@ type Nombre = String
 pepe = Usuario "José" 10
 lucho = Usuario "Luciano" 2
 
+pruebasConUsuarios = hspec $ do
+  describe "Verificando usuarios" $ do
+    it "8 - La billetera de pepe es de 10." $
+      billetera pepe `shouldBe` 10
+    it "9 - La billetera de Pepe, luego de un cierre de cuenta, es de 0." $
+      (cierreDeCuenta . billetera) pepe `shouldBe` 0
+    it "10 - La billetera de Pepe si le depositan 15, extrae 2, y tiene un Upgrade, es de 27.6." $
+      (upgrade . extracción 2 . depósito 15 . billetera) pepe `shouldBe` 27.6
+
 type Transacción = Usuario -> Evento
 type TransacciónGenérica = Usuario -> Evento -> Usuario -> Evento
 
-verificarUsuario usuarioAComparar usuario = nombre usuarioAComparar == nombre usuario
+esElMismoUsuario usuarioAComparar usuario = nombre usuarioAComparar == nombre usuario
 
 crearUnaNuevaTransacción :: TransacciónGenérica
 crearUnaNuevaTransacción usuarioAComparar unEvento usuario
-      | verificarUsuario usuarioAComparar usuario = unEvento
+      | esElMismoUsuario usuarioAComparar usuario = unEvento
       | otherwise = quedaIgual
 
 transacción1 :: Transacción
@@ -82,32 +91,6 @@ transacción5 usuario
       | verificarUsuario lucho usuario = depósito 7
       | verificarUsuario pepe usuario = extracción 7
       | otherwise = quedaIgual
-
-ejecutarTests = hspec $ do
-    describe "Pruebas de los eventos con una billetera de saldo 10." $ do
-      it "1 - Al depositar 10, queda con 20." $
-        billetera (depósito 10 alguienConBilleteraDeSaldo10) `shouldBe` 20
-      it "2 - Al extraer 3, queda con 7." $
-        billetera (extracción 3 alguienConBilleteraDeSaldo10) `shouldBe` 7
-      it "3 - Al extraer 15, queda con 0." $
-        billetera (extracción 15 alguienConBilleteraDeSaldo10) `shouldBe` 0
-      it "4 - Con un upgrade, queda con 12." $
-        billetera (upgrade alguienConBilleteraDeSaldo10) `shouldBe` 12
-      it "5 - Al cerrar la cuenta, queda con 0." $
-        billetera (cierreDeCuenta alguienConBilleteraDeSaldo10) `shouldBe` 0
-      it "6 - Con queda igual, queda con 10." $
-        billetera (quedaIgual alguienConBilleteraDeSaldo10) `shouldBe` 10
-      it "7 - Al depositar 1000, y luego tener un upgrade, queda con 1020." $
-        billetera ((upgrade.(depósito 1000)) alguienConBilleteraDeSaldo10) `shouldBe` 1020
-
-    describe "Verificando usuarios" $ do
-      it "8 - La billetera de pepe es de 10." $
-        billetera pepe `shouldBe` 10
-      it "9 - La billetera de Pepe, luego de un cierre de cuenta, es de 0." $
-      --Usar composicion
-        billetera (cierreDeCuenta pepe) `shouldBe` 0
-      it "10 - La billetera de Pepe si le depositan 15, extrae 2, y tiene un Upgrade, es de 27.6." $
-        billetera ((upgrade.extracción 2.depósito 15) pepe) `shouldBe` 27.6
 
     describe "Pruebas con las transacciones" $ do
       it "11 - Aplicar la transacción 1 a Pepe, esto produce el evento Queda igual, que si se aplica a una billetera de 20, debe dar una billetera con ese mismo monto." $
