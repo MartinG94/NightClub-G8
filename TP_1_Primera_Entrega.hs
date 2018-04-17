@@ -57,11 +57,11 @@ pruebasConUsuarios = hspec $ do
 type Transacción = Usuario -> Evento
 type TransacciónGenérica = Usuario -> Evento -> Usuario -> Evento
 
-esElMismoUsuario usuarioAComparar usuario = nombre usuarioAComparar == nombre usuario
+verificarUsuario usuarioAComparar usuario = nombre usuarioAComparar == nombre usuario
 
 crearUnaNuevaTransacción :: TransacciónGenérica
 crearUnaNuevaTransacción usuarioAComparar unEvento usuario
-      | esElMismoUsuario usuarioAComparar usuario = unEvento
+      | verificarUsuario usuarioAComparar usuario = unEvento
       | otherwise = quedaIgual
 
 transacción1 :: Transacción
@@ -84,6 +84,11 @@ transacción3 = crearUnaNuevaTransacción lucho tocoYMeVoy
 transacción4 :: Transacción
 transacción4 = crearUnaNuevaTransacción lucho ahorranteErrante
 
+{- Prototipo de transacción 5: Debería ser de esta forma
+transacción5 :: Transacción
+transacción5 = crearPagosEntreUsuarios pepe 7 lucho
+-}
+
 pruebasConTransacciones = hspec $ do
   describe "Pruebas con las transacciones" $ do
     it "11 - Aplicar la transacción 1 a Pepe, esto produce el evento Queda igual, que si se aplica a una billetera de 20, debe dar una billetera con ese mismo monto." $
@@ -96,18 +101,3 @@ pruebasConTransacciones = hspec $ do
       transacción3 lucho 10  `shouldBe` 0
     it "15 - Aplicar la transacción 4 a Lucho. Ver cómo queda una billetera inicial de 10. Debería quedar con 34" $
       transacción4 lucho 10  `shouldBe` 34
-
-{-
---Modelar partiendo del ejemplo anterior
-transacción5 :: Transacción
-transacción5 usuario
-      | verificarUsuario lucho usuario = depósito 7
-      | verificarUsuario pepe usuario = extracción 7
-      | otherwise = quedaIgual
-
-    describe "Pruebas con las transacciones" $ do
-      it "16 - Aplicar la transacción 5 a Pepe, esto produce el evento de extracción 7. Al aplicarlo a una billetera de 10, debería dar una nueva billetera de 3." $
-        billetera(transacción5 pepe alguienConBilleteraDeSaldo10) `shouldBe` 3
-      it "17 - Aplicar la transacción 5 a Lucho, esto produce el evento de depósito 7. Al aplicarlo a una billetera de 10, debería dar una nueva billetera de 17." $
-        billetera(transacción5 lucho alguienConBilleteraDeSaldo10) `shouldBe` 17
--}
