@@ -5,26 +5,27 @@ import Data.Maybe
 import Test.Hspec
 
 type Nombre = String
-type Dinero = Float
--- Revisar el tipo de evento
-type Evento = Dinero -> Dinero
+type Billetera = Float
+type Evento = Billetera -> Billetera
+type Transacción = Usuario -> Evento
+type TransacciónGenérica = Usuario -> Evento -> Usuario -> Evento
 
 data Usuario = Usuario {
-nombre :: Nombre,
-billetera :: Dinero
+  nombre :: Nombre,
+  billetera :: Billetera
 } deriving(Show,Eq)
 
 nuevoNombre otroNombre usuario = usuario {nombre = otroNombre}
 nuevoSaldo otroSaldo usuario = usuario {billetera = otroSaldo}
 
-pepe = Usuario {nombre = "José", billetera = 10}
-pepe2 = Usuario {nombre = "José", billetera = 20}
-lucho = Usuario {nombre = "Luciano", billetera = 2}
+pepe = Usuario "José" 10
+pepe2 = Usuario "José" 20
+lucho = Usuario "Luciano" 2
 
-depósito :: Dinero -> Evento
-depósito dineroADepositar billeteraDelUsuario = dineroADepositar + billeteraDelUsuario
+depósito :: Billetera -> Evento
+depósito dineroADepositar billeteraDelUsuario = dineroADepositar billeteraDelUsuario
 
-extracción :: Dinero -> Evento
+extracción :: Billetera -> Evento
 extracción dineroARetirar billeteraDelUsuario =  max 0 (billeteraDelUsuario - dineroARetirar)
 
 upgrade :: Evento
@@ -38,22 +39,16 @@ quedaIgual = id
 
 verificarUsuario usuarioAComparar usuario = nombre usuarioAComparar == nombre usuario
 
-transacciónGenerica :: Usuario -> Evento -> Usuario -> Evento
-transacciónGenerica usuarioAComparar unEvento usuario
+crearUnaNuevaTransacción :: TransacciónGenérica
+crearUnaNuevaTransacción usuarioAComparar unEvento usuario
       | verificarUsuario usuarioAComparar usuario = unEvento
       | otherwise = quedaIgual
 
-transacción1 = transacciónGenerica lucho cierreDeCuenta
-
 transacción1 :: Transacción
-transacción1 usuario
-      | verificarUsuario lucho usuario = cierreDeCuenta
-      | otherwise = quedaIgual
+transacción1 = crearUnaNuevaTransacción lucho cierreDeCuenta
 
 transacción2 :: Transacción
-transacción2 usuario
-      | verificarUsuario pepe usuario = depósito 5
-      | otherwise = quedaIgual
+transacción2 = crearUnaNuevaTransacción pepe (depósito 5)
 
 tocoYMeVoy :: Evento
 tocoYMeVoy = cierreDeCuenta . upgrade . depósito 15
@@ -62,26 +57,18 @@ ahorranteErrante :: Evento
 ahorranteErrante = depósito 10 . upgrade . depósito 8 . extracción 1 . depósito 2 . depósito 1
 
 transacción3 :: Transacción
-transacción3 usuario
-      | verificarUsuario lucho usuario = tocoYMeVoy
-      | otherwise = quedaIgual
+transacción3 = crearUnaNuevaTransacción lucho tocoYMeVoy
 
 transacción4 :: Transacción
-transacción4 usuario
-      |verificarUsuario lucho usuario = ahorranteErrante
-      | otherwise = quedaIgual
+transacción4 = crearUnaNuevaTransacción lucho ahorranteErrante
 
+{-
 --Modelar partiendo del ejemplo anterior
 transacción5 :: Transacción
 transacción5 usuario
       | verificarUsuario lucho usuario = depósito 7
       | verificarUsuario pepe usuario = extracción 7
       | otherwise = quedaIgual
-
---Volar
-alguienConBilleteraDeSaldo10 = Usuario "" 10
-alguienConBilleteraDeSaldo20 = Usuario "" 20
-alguienConBilleteraDeSaldo50 = Usuario "" 50
 
 ejecutarTests = hspec $ do
     describe "Pruebas de los eventos con una billetera de saldo 10." $ do
@@ -124,3 +111,4 @@ ejecutarTests = hspec $ do
         billetera(transacción5 pepe alguienConBilleteraDeSaldo10) `shouldBe` 3
       it "17 - Aplicar la transacción 5 a Lucho, esto produce el evento de depósito 7. Al aplicarlo a una billetera de 10, debería dar una nueva billetera de 17." $
         billetera(transacción5 lucho alguienConBilleteraDeSaldo10) `shouldBe` 17
+-}
