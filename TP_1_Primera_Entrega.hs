@@ -95,7 +95,6 @@ crearPagosEntreUsuarios usuarioExtracción cantidadDeUnidades usuarioDepósito u
 transacción5 :: Transacción
 transacción5 = crearPagosEntreUsuarios pepe 7 lucho
 
-
 pruebasConTransacciones = hspec $ do
   describe "Pruebas con las transacciones" $ do
     it "11 - Aplicar la transacción 1 a Pepe, esto produce el evento Queda igual, que si se aplica a una billetera de 20, debe dar una billetera con ese mismo monto." $
@@ -112,3 +111,8 @@ pruebasConTransacciones = hspec $ do
       transacción5 pepe 10 `shouldBe` 3
     it "17 - Aplicar la transacción 5 a Lucho, esto produce el evento de depósito 7. Al aplicarlo a una billetera de 10, debería dar una nueva billetera de 17." $
       transacción5 lucho 10 `shouldBe` 17
+
+ejecutarTests = do
+  pruebasConEventos
+  pruebasConUsuarios
+  pruebasConTransacciones
