@@ -22,6 +22,16 @@ cierreDeCuenta billeteraDelUsuario = 0
 quedaIgual :: Evento
 quedaIgual = id
 
+pruebasConEventos = hspec $ do
+  describe "Pruebas de los eventos con una billetera de saldo 10" $ do
+    it "1 - Al depositar 10, queda con 20." $ depósito 10 10 `shouldBe` 20
+    it "2 - Al extraer 3, queda con 7." $ extracción 3 10 `shouldBe` 7
+    it "3 - Al extraer 15, queda con 0." $ extracción 15 10 `shouldBe` 0
+    it "4 - Con un upgrade, queda con 12." $ upgrade 10 `shouldBe` 12
+    it "5 - Al cerrar la cuenta, queda con 0." $ cierreDeCuenta 10 `shouldBe` 0
+    it "6 - Con queda igual, queda con 10." $ quedaIgual 10 `shouldBe` 10
+    it "7 - Al depositar 1000, y luego tener un upgrade, queda con 1020." $ (upgrade.(depósito 1000)) 10 `shouldBe` 1020
+
 data Usuario = Usuario {
   nombre :: Nombre,
   billetera :: Billetera
