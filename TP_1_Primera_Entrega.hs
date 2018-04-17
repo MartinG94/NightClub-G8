@@ -84,6 +84,19 @@ transacción3 = crearUnaNuevaTransacción lucho tocoYMeVoy
 transacción4 :: Transacción
 transacción4 = crearUnaNuevaTransacción lucho ahorranteErrante
 
+pruebasConTransacciones = hspec $ do
+  describe "Pruebas con las transacciones" $ do
+    it "11 - Aplicar la transacción 1 a Pepe, esto produce el evento Queda igual, que si se aplica a una billetera de 20, debe dar una billetera con ese mismo monto." $
+      transacción1 pepe 20 `shouldBe` 20
+    it "12 - Aplicar la transacción 2 a Pepe, esto produce el evento depositar 5, que si se aplica a una billetera de 10, queda con 15." $
+      transacción2 pepe 10 `shouldBe` 15
+    it "13 - Aplicar la transacción 2 al nuevo Pepe, esto produce un evento, que aplicado a una billetera de 50, queda con 55." $
+      transacción2 pepe2 50 `shouldBe` 55
+    it "14 - Aplicar la transacción 3 a Lucho. Ver cómo queda una billetera inicial de 10. Debería quedar con 0" $
+      transacción3 lucho 10  `shouldBe` 0
+    it "15 - Aplicar la transacción 4 a Lucho. Ver cómo queda una billetera inicial de 10. Debería quedar con 34" $
+      transacción4 lucho 10  `shouldBe` 34
+
 {-
 --Modelar partiendo del ejemplo anterior
 transacción5 :: Transacción
@@ -93,16 +106,6 @@ transacción5 usuario
       | otherwise = quedaIgual
 
     describe "Pruebas con las transacciones" $ do
-      it "11 - Aplicar la transacción 1 a Pepe, esto produce el evento Queda igual, que si se aplica a una billetera de 20, debe dar una billetera con ese mismo monto." $
-        billetera (transacción1 pepe alguienConBilleteraDeSaldo20) `shouldBe` 20
-      it "12 - Aplicar la transacción 2 a Pepe, esto produce el evento depositar 5, que si se aplica a una billetera de 10, queda con 15." $
-        billetera (transacción2 pepe alguienConBilleteraDeSaldo10) `shouldBe` 15
-      it "13 - Aplicar la transacción 2 al nuevo Pepe, esto produce un evento, que aplicado a una billetera de 50, queda con 55." $
-        billetera(transacción2 pepe2 alguienConBilleteraDeSaldo50) `shouldBe` 55
-      it "14 - Aplicar la transacción 3 a Lucho. Ver cómo queda una billetera inicial de 10. Debería quedar con 0" $
-        billetera(transacción3 lucho alguienConBilleteraDeSaldo10)  `shouldBe` 0
-      it "15 - Aplicar la transacción 4 a Lucho. Ver cómo queda una billetera inicial de 10. Debería quedar con 34" $
-        billetera(transacción4 lucho alguienConBilleteraDeSaldo10)  `shouldBe` 34
       it "16 - Aplicar la transacción 5 a Pepe, esto produce el evento de extracción 7. Al aplicarlo a una billetera de 10, debería dar una nueva billetera de 3." $
         billetera(transacción5 pepe alguienConBilleteraDeSaldo10) `shouldBe` 3
       it "17 - Aplicar la transacción 5 a Lucho, esto produce el evento de depósito 7. Al aplicarlo a una billetera de 10, debería dar una nueva billetera de 17." $
