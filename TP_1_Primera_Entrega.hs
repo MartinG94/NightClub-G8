@@ -108,3 +108,7 @@ pruebasConTransacciones = hspec $ do
       transacción3 lucho 10  `shouldBe` 0
     it "15 - Aplicar la transacción 4 a Lucho. Ver cómo queda una billetera inicial de 10. Debería quedar con 34" $
       transacción4 lucho 10  `shouldBe` 34
+    it "16 - Aplicar la transacción 5 a Pepe, esto produce el evento de extracción 7. Al aplicarlo a una billetera de 10, debería dar una nueva billetera de 3." $
+      transacción5 pepe 10 `shouldBe` 3
+    it "17 - Aplicar la transacción 5 a Lucho, esto produce el evento de depósito 7. Al aplicarlo a una billetera de 10, debería dar una nueva billetera de 17." $
+      transacción5 lucho 10 `shouldBe` 17
