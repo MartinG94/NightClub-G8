@@ -84,10 +84,17 @@ transacción3 = crearUnaNuevaTransacción lucho tocoYMeVoy
 transacción4 :: Transacción
 transacción4 = crearUnaNuevaTransacción lucho ahorranteErrante
 
-{- Prototipo de transacción 5: Debería ser de esta forma
+type PagosGenéricosEntreUsuarios = Usuario -> Billetera -> Usuario -> Usuario ->Evento
+
+crearPagosEntreUsuarios :: PagosGenéricosEntreUsuarios
+crearPagosEntreUsuarios usuarioExtracción cantidadDeUnidades usuarioDepósito usuario
+        | verificarUsuario usuarioExtracción usuario =  extracción cantidadDeUnidades
+        | verificarUsuario usuarioDepósito usuario = depósito cantidadDeUnidades
+        | otherwise = quedaIgual
+
 transacción5 :: Transacción
 transacción5 = crearPagosEntreUsuarios pepe 7 lucho
--}
+
 
 pruebasConTransacciones = hspec $ do
   describe "Pruebas con las transacciones" $ do
