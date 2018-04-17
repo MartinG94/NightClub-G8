@@ -6,6 +6,7 @@ import Test.Hspec
 
 type Nombre = String
 type Dinero = Float
+--Revisar el tipo de evento
 type Evento = Usuario -> Usuario
 type Transacción = Usuario -> Evento
 
@@ -31,6 +32,7 @@ extracción dineroARetirar usuario = nuevoSaldo ( max 0 (billetera usuario - din
 upgrade :: Evento
 upgrade usuario = nuevoSaldo (billetera usuario + verificarUpgrade usuario) usuario
 
+--Tratar de usar min
 verificarUpgrade usuario
       | billetera usuario * 0.2 > 10 = 10
       | otherwise = billetera usuario * 0.2
@@ -38,11 +40,15 @@ verificarUpgrade usuario
 cierreDeCuenta :: Evento
 cierreDeCuenta usuario = nuevoSaldo 0 usuario
 
+--Usen id que esta lindo
 quedaIgual :: Evento
 quedaIgual usuario = usuario
 
 verificarUsuario usuarioAComparar usuario = nombre usuarioAComparar == nombre usuario
 
+
+--Armar una transaccion generica que reciba dos usuarios y un evento
+-- Fijarse como modelar las transaccion
 transacción1 :: Transacción
 transacción1 usuario
       | verificarUsuario lucho usuario = cierreDeCuenta
@@ -69,12 +75,14 @@ transacción4 usuario
       |verificarUsuario lucho usuario = ahorranteErrante
       | otherwise = quedaIgual
 
+--Modelar partiendo del ejemplo anterior
 transacción5 :: Transacción
 transacción5 usuario
       | verificarUsuario lucho usuario = depósito 7
       | verificarUsuario pepe usuario = extracción 7
       | otherwise = quedaIgual
 
+--Volar
 alguienConBilleteraDeSaldo10 = Usuario "" 10
 alguienConBilleteraDeSaldo20 = Usuario "" 20
 alguienConBilleteraDeSaldo50 = Usuario "" 50
@@ -100,6 +108,7 @@ ejecutarTests = hspec $ do
       it "8 - La billetera de pepe es de 10." $
         billetera pepe `shouldBe` 10
       it "9 - La billetera de Pepe, luego de un cierre de cuenta, es de 0." $
+      --Usar composicion
         billetera (cierreDeCuenta pepe) `shouldBe` 0
       it "10 - La billetera de Pepe si le depositan 15, extrae 2, y tiene un Upgrade, es de 27.6." $
         billetera ((upgrade.extracción 2.depósito 15) pepe) `shouldBe` 27.6
