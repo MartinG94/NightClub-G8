@@ -4,26 +4,11 @@ import Data.List
 import Data.Maybe
 import Test.Hspec
 
-type Nombre = String
 type Billetera = Float
 type Evento = Billetera -> Billetera
-type Transacción = Usuario -> Evento
-type TransacciónGenérica = Usuario -> Evento -> Usuario -> Evento
-
-data Usuario = Usuario {
-  nombre :: Nombre,
-  billetera :: Billetera
-} deriving(Show,Eq)
-
-nuevoNombre otroNombre usuario = usuario {nombre = otroNombre}
-nuevoSaldo otroSaldo usuario = usuario {billetera = otroSaldo}
-
-pepe = Usuario "José" 10
-pepe2 = Usuario "José" 20
-lucho = Usuario "Luciano" 2
 
 depósito :: Billetera -> Evento
-depósito dineroADepositar billeteraDelUsuario = dineroADepositar billeteraDelUsuario
+depósito dineroADepositar billeteraDelUsuario = dineroADepositar + billeteraDelUsuario
 
 extracción :: Billetera -> Evento
 extracción dineroARetirar billeteraDelUsuario =  max 0 (billeteraDelUsuario - dineroARetirar)
@@ -37,6 +22,22 @@ cierreDeCuenta billeteraDelUsuario = 0
 quedaIgual :: Evento
 quedaIgual = id
 
+data Usuario = Usuario {
+  nombre :: Nombre,
+  billetera :: Billetera
+} deriving(Show,Eq)
+
+nuevoNombre otroNombre usuario = usuario {nombre = otroNombre}
+nuevoSaldo otroSaldo usuario = usuario {billetera = otroSaldo}
+
+type Nombre = String
+
+pepe = Usuario "José" 10
+lucho = Usuario "Luciano" 2
+
+type Transacción = Usuario -> Evento
+type TransacciónGenérica = Usuario -> Evento -> Usuario -> Evento
+
 verificarUsuario usuarioAComparar usuario = nombre usuarioAComparar == nombre usuario
 
 crearUnaNuevaTransacción :: TransacciónGenérica
@@ -49,6 +50,8 @@ transacción1 = crearUnaNuevaTransacción lucho cierreDeCuenta
 
 transacción2 :: Transacción
 transacción2 = crearUnaNuevaTransacción pepe (depósito 5)
+
+pepe2 = Usuario "José" 20
 
 tocoYMeVoy :: Evento
 tocoYMeVoy = cierreDeCuenta . upgrade . depósito 15
