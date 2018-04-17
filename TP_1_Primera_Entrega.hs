@@ -6,9 +6,8 @@ import Test.Hspec
 
 type Nombre = String
 type Dinero = Float
---Revisar el tipo de evento
-type Evento = Usuario -> Usuario
-type Transacción = Usuario -> Evento
+-- Revisar el tipo de evento
+type Evento = Dinero -> Dinero
 
 data Usuario = Usuario {
 nombre :: Nombre,
@@ -16,7 +15,6 @@ billetera :: Dinero
 } deriving(Show,Eq)
 
 nuevoNombre otroNombre usuario = usuario {nombre = otroNombre}
-
 nuevoSaldo otroSaldo usuario = usuario {billetera = otroSaldo}
 
 pepe = Usuario {nombre = "José", billetera = 10}
@@ -24,31 +22,29 @@ pepe2 = Usuario {nombre = "José", billetera = 20}
 lucho = Usuario {nombre = "Luciano", billetera = 2}
 
 depósito :: Dinero -> Evento
-depósito dineroDepositado usuario = nuevoSaldo (billetera usuario + dineroDepositado) usuario
+depósito dineroADepositar billeteraDelUsuario = dineroADepositar + billeteraDelUsuario
 
 extracción :: Dinero -> Evento
-extracción dineroARetirar usuario = nuevoSaldo ( max 0 (billetera usuario - dineroARetirar) ) usuario
+extracción dineroARetirar billeteraDelUsuario =  max 0 (billeteraDelUsuario - dineroARetirar)
 
 upgrade :: Evento
-upgrade usuario = nuevoSaldo (billetera usuario + verificarUpgrade usuario) usuario
-
---Tratar de usar min
-verificarUpgrade usuario
-      | billetera usuario * 0.2 > 10 = 10
-      | otherwise = billetera usuario * 0.2
+upgrade billeteraDelUsuario =  billeteraDelUsuario + min 10 (billeteraDelUsuario * 0.2)
 
 cierreDeCuenta :: Evento
-cierreDeCuenta usuario = nuevoSaldo 0 usuario
+cierreDeCuenta billeteraDelUsuario = 0
 
---Usen id que esta lindo
 quedaIgual :: Evento
-quedaIgual usuario = usuario
+quedaIgual = id
 
 verificarUsuario usuarioAComparar usuario = nombre usuarioAComparar == nombre usuario
 
+transacciónGenerica :: Usuario -> Evento -> Usuario -> Evento
+transacciónGenerica usuarioAComparar unEvento usuario
+      | verificarUsuario usuarioAComparar usuario = unEvento
+      | otherwise = quedaIgual
 
---Armar una transaccion generica que reciba dos usuarios y un evento
--- Fijarse como modelar las transaccion
+transacción1 = transacciónGenerica lucho cierreDeCuenta
+
 transacción1 :: Transacción
 transacción1 usuario
       | verificarUsuario lucho usuario = cierreDeCuenta
