@@ -128,6 +128,12 @@ pruebasConImpactar = hspec $ do
     it "20 - Impactar la transacción 5 y luego la 2 a Pepe. Eso hace que tenga 8 en su billetera." $
       (billetera.(impactar transacción5).(impactar transacción2)) pepe `shouldBe` (billetera.(nuevoSaldo 8)) pepe
 
+type ConjuntoDeTransacciones = [Transacción]
+
+bloque1 :: ConjuntoDeTransacciones
+bloque1 = [transacción1, transacción2, transacción2, transacción2, transacción3, transacción4, transacción5, transacción3]
+
+
 ejecutarTests = do
   pruebasConEventos
   pruebasConUsuarios
