@@ -128,11 +128,13 @@ pruebasConImpactar = hspec $ do
     it "20 - Impactar la transacción 5 y luego la 2 a Pepe. Eso hace que tenga 8 en su billetera." $
       (billetera.(impactar transacción5).(impactar transacción2)) pepe `shouldBe` (billetera.(nuevoSaldo 8)) pepe
 
-type ConjuntoDeTransacciones = [Transacción]
+type Bloque = [Transacción]
 
-bloque1 :: ConjuntoDeTransacciones
+bloque1 :: Bloque
 bloque1 = [transacción1, transacción2, transacción2, transacción2, transacción3, transacción4, transacción5, transacción3]
 
+saldoActualSegún :: Bloque -> Usuario -> Usuario
+saldoActualSegún unBloque usuario = foldl (flip impactar) usuario unBloque
 
 ejecutarTests = do
   pruebasConEventos
