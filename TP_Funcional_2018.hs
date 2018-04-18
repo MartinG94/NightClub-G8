@@ -136,6 +136,9 @@ bloque1 = [transacción1, transacción2, transacción2, transacción2, transacci
 saldoActualSegún :: Bloque -> Usuario -> Usuario
 saldoActualSegún unBloque usuario = foldl (flip impactar) usuario unBloque
 
+quedanConUnSaldoDeAlMenos :: Billetera -> Bloque -> [Usuario] -> [Usuario]
+quedanConUnSaldoDeAlMenos nroCréditos unBloque = filter ((>=nroCréditos).billetera.(saldoActualSegún unBloque))
+
 ejecutarTests = do
   pruebasConEventos
   pruebasConUsuarios
