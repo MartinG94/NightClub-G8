@@ -119,7 +119,17 @@ pruebasConTransacciones = hspec $ do
 impactar :: Transacción -> Usuario -> Usuario
 impactar unaTransacción usuario = nuevoSaldo (unaTransacción usuario (billetera usuario)) usuario
 
+pruebasConImpactar = hspec $ do
+  describe "Pruebas con la nueva función impactar." $ do
+    it "18 - Impactar la transacción 1 a Pepe. Debería quedar igual que como está inicialmente." $
+      (billetera.(impactar transacción1)) pepe `shouldBe` billetera pepe
+    it "19 - Impactar la transacción 5 a Lucho. Debería producir que Lucho tenga 9 monedas en su billetera." $
+      (billetera.(impactar transacción5)) lucho `shouldBe` (billetera.(nuevoSaldo 9)) lucho
+    it "20 - Impactar la transacción 5 y luego la 2 a Pepe. Eso hace que tenga 8 en su billetera." $
+      (billetera.(impactar transacción5).(impactar transacción2)) pepe `shouldBe` (billetera.(nuevoSaldo 8)) pepe
+
 ejecutarTests = do
   pruebasConEventos
   pruebasConUsuarios
   pruebasConTransacciones
+  pruebasConImpactar
