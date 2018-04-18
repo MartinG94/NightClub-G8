@@ -139,6 +139,14 @@ saldoActualSegún unBloque usuario = foldl (flip impactar) usuario unBloque
 quedanConUnSaldoDeAlMenos :: Billetera -> Bloque -> [Usuario] -> [Usuario]
 quedanConUnSaldoDeAlMenos nroCréditos unBloque = filter ((>=nroCréditos).billetera.(saldoActualSegún unBloque))
 
+pruebasConBloque1 = hspec $ do
+  describe "Pruebas con bloque1" $ do
+    it "21 - A partir del bloque 1 y pepe, decir cómo queda el usuario con su nuevo saldo en su billetera. Debería quedar con su mismo nombre, pero con una billetera de 18." $
+      (billetera.(saldoActualSegún bloque1)) pepe `shouldBe` (billetera.(nuevoSaldo 18)) pepe
+    it "22 - A partir de pepe y lucho y el bloque1, solo pepe queda con un saldo de al menos 10." $
+      quedanConUnSaldoDeAlMenos 10 bloque1 [pepe,lucho] `shouldBe` [pepe]
+
+
 ejecutarTests = do
   pruebasConEventos
   pruebasConUsuarios
