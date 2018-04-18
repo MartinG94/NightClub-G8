@@ -13,10 +13,10 @@ depósito :: Billetera -> Evento
 depósito dineroADepositar billeteraDelUsuario = dineroADepositar + billeteraDelUsuario
 
 extracción :: Billetera -> Evento
-extracción dineroARetirar billeteraDelUsuario =  max 0 (billeteraDelUsuario - dineroARetirar)
+extracción dineroARetirar billeteraDelUsuario = max 0 (billeteraDelUsuario - dineroARetirar)
 
 upgrade :: Evento
-upgrade billeteraDelUsuario =  billeteraDelUsuario + min 10 (billeteraDelUsuario * 0.2)
+upgrade billeteraDelUsuario = billeteraDelUsuario + min 10 (billeteraDelUsuario * 0.2)
 
 cierreDeCuenta :: Evento
 cierreDeCuenta billeteraDelUsuario = 0
@@ -34,6 +34,8 @@ pruebasConEventos = hspec $ do
     it "6 - Con queda igual, queda con 10." $ quedaIgual 10 `shouldBe` 10
     it "7 - Al depositar 1000, y luego tener un upgrade, queda con 1020." $ (upgrade.(depósito 1000)) 10 `shouldBe` 1020
 
+type Nombre = String
+
 data Usuario = Usuario {
   nombre :: Nombre,
   billetera :: Billetera
@@ -41,8 +43,6 @@ data Usuario = Usuario {
 
 nuevoNombre otroNombre usuario = usuario {nombre = otroNombre}
 nuevoSaldo otroSaldo usuario = usuario {billetera = otroSaldo}
-
-type Nombre = String
 
 pepe = Usuario "José" 10
 lucho = Usuario "Luciano" 2
@@ -105,13 +105,13 @@ pruebasConTransacciones = hspec $ do
       transacción2 pepe 10 `shouldBe` 15
     it "13 - La transacción 2 se aplica a pepe2, esto produce un evento, que aplicado a una billetera de 50, queda con 55." $
       transacción2 pepe2 50 `shouldBe` 55
-    it "14 - La transacción 3 se aplica a Lucho. Ver cómo queda una billetera inicial de 10. Debería quedar con 0" $
+    it "14 - La transacción 3 se aplica a lucho. Ver cómo queda una billetera inicial de 10. Debería quedar con 0" $
       transacción3 lucho 10  `shouldBe` 0
-    it "15 - La transacción 4 se aplica a Lucho. Ver cómo queda una billetera inicial de 10. Debería quedar con 34" $
+    it "15 - La transacción 4 se aplica a lucho. Ver cómo queda una billetera inicial de 10. Debería quedar con 34" $
       transacción4 lucho 10  `shouldBe` 34
-    it "16 - La transacción 5 se aplica a Pepe, esto produce el evento de extracción 7. Al aplicarlo a una billetera de 10, debería dar una nueva billetera de 3." $
+    it "16 - La transacción 5 se aplica a pepe, esto produce el evento de extracción 7. Al aplicarlo a una billetera de 10, debería dar una nueva billetera de 3." $
       transacción5 pepe 10 `shouldBe` 3
-    it "17 - La transacción 5 se aplica a Lucho, esto produce el evento de depósito 7. Al aplicarlo a una billetera de 10, debería dar una nueva billetera de 17." $
+    it "17 - La transacción 5 se aplica a lucho, esto produce el evento de depósito 7. Al aplicarlo a una billetera de 10, debería dar una nueva billetera de 17." $
       transacción5 lucho 10 `shouldBe` 17
 
 -- 2da Parte
@@ -146,9 +146,9 @@ pruebasConBloque1 = hspec $ do
     it "22 - A partir de pepe y lucho y el bloque1, solo pepe queda con un saldo de al menos 10." $
       quedanConUnSaldoDeAlMenos 10 bloque1 [pepe,lucho] `shouldBe` [pepe]
 
-
 ejecutarTests = do
   pruebasConEventos
   pruebasConUsuarios
   pruebasConTransacciones
   pruebasConImpactar
+  pruebasConBloque1
