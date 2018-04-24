@@ -10,13 +10,13 @@ type Billetera = Float
 type Evento = Billetera -> Billetera
 
 depósito :: Billetera -> Evento
-depósito dineroADepositar billeteraDelUsuario = dineroADepositar + billeteraDelUsuario
+depósito = (+)
 
 extracción :: Billetera -> Evento
-extracción dineroARetirar billeteraDelUsuario = max 0 (billeteraDelUsuario - dineroARetirar)
+extracción dineroARetirar = ( max 0 . (depósito (- dineroARetirar)))
 
 upgrade :: Evento
-upgrade billeteraDelUsuario = billeteraDelUsuario + min 10 (billeteraDelUsuario * 0.2)
+upgrade billeteraUsuario = (depósito billeteraUsuario . min 10 . (*0.2)) billeteraUsuario
 
 cierreDeCuenta :: Evento
 cierreDeCuenta billeteraDelUsuario = 0
