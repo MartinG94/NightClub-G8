@@ -57,11 +57,10 @@ pruebasConUsuarios = hspec $ do
       (upgrade . extracción 2 . depósito 15 . billetera) pepe `shouldBe` 27.6
 
 type Transacción = Usuario -> Evento
-type TransacciónGenérica = Usuario -> Evento -> Transacción
 
 verificarUsuario usuarioAComparar usuario = nombre usuarioAComparar == nombre usuario
 
-crearUnaNuevaTransacción :: TransacciónGenérica
+crearUnaNuevaTransacción :: Usuario -> Evento -> Transacción
 crearUnaNuevaTransacción usuarioAComparar unEvento usuario
       | verificarUsuario usuarioAComparar usuario = unEvento
       | otherwise = quedaIgual
@@ -86,9 +85,7 @@ transacción3 = crearUnaNuevaTransacción lucho tocoYMeVoy
 transacción4 :: Transacción
 transacción4 = crearUnaNuevaTransacción lucho ahorranteErrante
 
-type PagoGenéricoEntreUsuarios = Usuario -> Billetera -> Usuario -> Transacción
-
-crearPagosEntreUsuarios :: PagoGenéricoEntreUsuarios
+crearPagosEntreUsuarios :: Usuario -> Billetera -> Usuario -> Transacción
 crearPagosEntreUsuarios usuarioExtracción cantidadDeUnidades usuarioDepósito usuario
         | verificarUsuario usuarioExtracción usuario =  extracción cantidadDeUnidades
         | verificarUsuario usuarioDepósito usuario = depósito cantidadDeUnidades
@@ -134,7 +131,7 @@ bloque1 :: Bloque
 bloque1 = [transacción1, transacción2, transacción2, transacción2, transacción3, transacción4, transacción5, transacción3]
 
 saldoActualSegún :: Bloque -> Usuario -> Usuario
-saldoActualSegún unBloque usuario = foldl (flip impactar) usuario unBloque
+saldoActualSegún unBloque usuario = foldr (impactar) usuario unBloque
 
 quedanConUnSaldoDeAlMenos :: Billetera -> Bloque -> [Usuario] -> [Usuario]
 quedanConUnSaldoDeAlMenos nroCréditos unBloque = filter ((>=nroCréditos).billetera.(saldoActualSegún unBloque))
@@ -142,7 +139,7 @@ quedanConUnSaldoDeAlMenos nroCréditos unBloque = filter ((>=nroCréditos).bille
 pruebasConBloque1 = hspec $ do
   describe "Pruebas con bloque1" $ do
     it "21 - A partir del bloque 1 y pepe, decir cómo queda el usuario con su nuevo saldo en su billetera. Debería quedar con su mismo nombre, pero con una billetera de 18." $
-      (billetera.(saldoActualSegún bloque1)) pepe `shouldBe` (billetera.(nuevoSaldo 18)) pepe
+      saldoActualSegún bloque1 pepe `shouldBe` nuevoSaldo 18 pepe
     it "22 - A partir de pepe y lucho y el bloque1, solo pepe queda con un saldo de al menos 10." $
       quedanConUnSaldoDeAlMenos 10 bloque1 [pepe,lucho] `shouldBe` [pepe]
 
