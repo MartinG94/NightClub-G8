@@ -13,13 +13,13 @@ depósito :: Billetera -> Evento
 depósito = (+)
 
 extracción :: Billetera -> Evento
-extracción dineroARetirar = ( max 0 . (depósito (- dineroARetirar)))
+extracción dineroARetirar = max 0 . depósito ( -dineroARetirar)
 
 upgrade :: Evento
 upgrade billeteraUsuario = (depósito billeteraUsuario . min 10 . (*0.2)) billeteraUsuario
 
 cierreDeCuenta :: Evento
-cierreDeCuenta billeteraDelUsuario = 0
+cierreDeCuenta _ = 0
 
 quedaIgual :: Evento
 quedaIgual = id
@@ -42,7 +42,7 @@ data Usuario = Usuario {
 } deriving(Show,Eq)
 
 nuevoNombre otroNombre usuario = usuario {nombre = otroNombre}
-nuevoSaldo otroSaldo usuario = usuario {billetera = otroSaldo}
+nuevaBilletera otroSaldo usuario = usuario {billetera = otroSaldo}
 
 pepe = Usuario "José" 10
 lucho = Usuario "Luciano" 2
@@ -114,32 +114,32 @@ pruebasConTransacciones = hspec $ do
 -- 2da Parte
 
 impactar :: Transacción -> Usuario -> Usuario
-impactar unaTransacción usuario = nuevoSaldo (unaTransacción usuario (billetera usuario)) usuario
+impactar unaTransacción usuario = nuevaBilletera (unaTransacción usuario (billetera usuario)) usuario
 
 pruebasConImpactar = hspec $ do
   describe "Pruebas con la nueva función impactar." $ do
     it "18 - Impactar la transacción 1 a Pepe. Debería quedar igual que como está inicialmente." $
-      (impactar transacción1) pepe `shouldBe` pepe
+      impactar transacción1 pepe `shouldBe` pepe
     it "19 - Impactar la transacción 5 a Lucho. Debería producir que Lucho tenga 9 monedas en su billetera." $
-      impactar transacción5 lucho `shouldBe` nuevoSaldo 9 lucho
+      impactar transacción5 lucho `shouldBe` nuevaBilletera 9 lucho
     it "20 - Impactar la transacción 5 y luego la 2 a Pepe. Eso hace que tenga 8 en su billetera." $
-      (impactar transacción5.impactar transacción2) pepe `shouldBe` nuevoSaldo 8 pepe
+      (impactar transacción5.impactar transacción2) pepe `shouldBe` nuevaBilletera 8 pepe
 
 type Bloque = [Transacción]
 
 bloque1 :: Bloque
 bloque1 = [transacción1, transacción2, transacción2, transacción2, transacción3, transacción4, transacción5, transacción3]
 
-saldoActualSegún :: Bloque -> Usuario -> Usuario
-saldoActualSegún unBloque usuario = foldr (impactar) usuario unBloque
+cómoQuedaSegún :: Bloque -> Usuario -> Usuario
+cómoQuedaSegún unBloque usuario = foldr (impactar) usuario unBloque
 
 quedanConUnSaldoDeAlMenos :: Billetera -> Bloque -> [Usuario] -> [Usuario]
-quedanConUnSaldoDeAlMenos nroCréditos unBloque = filter ((>=nroCréditos).billetera.(saldoActualSegún unBloque))
+quedanConUnSaldoDeAlMenos nroCréditos unBloque = filter ((>=nroCréditos).billetera.(cómoQuedaSegún unBloque))
 
 pruebasConBloque1 = hspec $ do
   describe "Pruebas con bloque1" $ do
     it "21 - A partir del bloque 1 y pepe, decir cómo queda el usuario con su nuevo saldo en su billetera. Debería quedar con su mismo nombre, pero con una billetera de 18." $
-      saldoActualSegún bloque1 pepe `shouldBe` nuevoSaldo 18 pepe
+      cómoQuedaSegún bloque1 pepe `shouldBe` nuevaBilletera 18 pepe
     it "22 - A partir de pepe y lucho y el bloque1, solo pepe queda con un saldo de al menos 10." $
       quedanConUnSaldoDeAlMenos 10 bloque1 [pepe,lucho] `shouldBe` [pepe]
 
