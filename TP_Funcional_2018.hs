@@ -185,6 +185,14 @@ elPeorBloque unUsuario = foldl1 (decidirEntreBloques unUsuario)
 cómoEstabaEn :: Int -> BlockChain -> Usuario -> Usuario
 cómoEstabaEn ciertoPunto blockChain = cómoQuedaSegún (crearBloqueCon (take ciertoPunto blockChain))
 
+duplicarTransacciones :: Bloque -> Bloque
+duplicarTransacciones unBloque = unBloque ++ unBloque
+
+generarBlockInfinito :: Bloque -> BlockChain
+generarBlockInfinito unBloque = unBloque : generarBlockInfinito (duplicarTransacciones unBloque)
+
+blockChainInfinita = generarBlockInfinito bloque1
+
 pruebasConBlockChain = hspec $ do
   describe "Pruebas con BlockChain" $ do
     it "25 - El peor bloque para pepe de la BlockChain lo deja con un saldo de 18" $
@@ -193,8 +201,11 @@ pruebasConBlockChain = hspec $ do
       (billetera . cómoQuedaSegún (crearBloqueCon blockChain1)) pepe `shouldBe` 115
     it "27 - Pepe queda con 51 monedas con los 3 primeros bloques de la BlockChain" $
       (billetera . cómoEstabaEn 3 blockChain1) pepe `shouldBe` 51
+    it "27.b - Cuando se pide el usuario en un punto que supera la cantidad de bloques de la BlockChain, el resultado es 115" $
+      (billetera . cómoEstabaEn 210 blockChain1) pepe `shouldBe` 115
     it "28 - La suma de las billeteras de pepe y lucho cuando se les aplica la BlockChain es 115" $
       (sum . map billetera . map (cómoQuedaSegún (crearBloqueCon blockChain1))) [pepe,lucho] `shouldBe` 115
+
 
 ejecutarTests = do
   pruebasConEventos
