@@ -212,7 +212,8 @@ pruebasConBlockChain = hspec $ do
       (billetera . cómoEstabaEn 210 blockChain1) pepe `shouldBe` 115
     it "28 - La suma de las billeteras de pepe y lucho cuando se les aplica la BlockChain es 115" $
       (sum . map billetera . map (cómoQuedaSegún (crearBloqueCon blockChain1))) [pepe,lucho] `shouldBe` 115
-
+    it "29 - Los bloques necesarios para alcanzar un saldo de 10000 con una BlockChain infinita creada a partir del bloque1, es de 11" $
+      bloquesNecesariosParaAlcanzar 10000 blockChainInfinita pepe `shouldBe` 11
 
 ejecutarTests = do
   pruebasConEventos
