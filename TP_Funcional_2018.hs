@@ -57,12 +57,14 @@ pruebasConUsuarios = hspec $ do
       (upgrade . extracción 2 . depósito 15 . billetera) pepe `shouldBe` 27.6
 
 type Transacción = Usuario -> Evento
+type Criterio = Usuario -> Usuario -> Bool
 
-verificarUsuario usuarioAComparar usuario = nombre usuarioAComparar == nombre usuario
+compararUsuario :: Criterio
+compararUsuario usuarioAComparar usuario = nombre usuarioAComparar == nombre usuario
 
 crearUnaNuevaTransacción :: Usuario -> Evento -> Transacción
 crearUnaNuevaTransacción usuarioAComparar unEvento usuario
-      | verificarUsuario usuarioAComparar usuario = unEvento
+      | compararUsuario usuarioAComparar usuario = unEvento
       | otherwise = quedaIgual
 
 transacción1 :: Transacción
@@ -87,8 +89,8 @@ transacción4 = crearUnaNuevaTransacción lucho ahorranteErrante
 
 crearPagosEntreUsuarios :: Usuario -> Billetera -> Usuario -> Transacción
 crearPagosEntreUsuarios usuarioExtracción cantidadDeUnidades usuarioDepósito usuario
-        | verificarUsuario usuarioExtracción usuario =  extracción cantidadDeUnidades
-        | verificarUsuario usuarioDepósito usuario = depósito cantidadDeUnidades
+        | compararUsuario usuarioExtracción usuario =  extracción cantidadDeUnidades
+        | compararUsuario usuarioDepósito usuario = depósito cantidadDeUnidades
         | otherwise = quedaIgual
 
 transacción5 :: Transacción
@@ -135,6 +137,12 @@ cómoQuedaSegún unBloque usuario = foldr (impactar) usuario unBloque
 
 quedanConUnSaldoDeAlMenos :: Billetera -> Bloque -> [Usuario] -> [Usuario]
 quedanConUnSaldoDeAlMenos nroCréditos unBloque = filter ((>=nroCréditos).billetera.(cómoQuedaSegún unBloque))
+
+másAdinerado :: Criterio
+másAdinerado unUsuario otroUsuario = billetera unUsuario > billetera otroUsuario
+
+menosAdinerado :: Criterio
+menosAdinerado unUsuario otroUsuario = billetera unUsuario < billetera otroUsuario
 
 pruebasConBloque1 = hspec $ do
   describe "Pruebas con bloque1" $ do
