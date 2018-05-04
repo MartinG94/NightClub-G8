@@ -149,6 +149,9 @@ buscarAl unCriterio unBloque unUsuario otroUsuario
         | unCriterio (cómoQuedaSegún unBloque unUsuario) (cómoQuedaSegún unBloque otroUsuario) = unUsuario
         | otherwise = otroUsuario
 
+quienSería :: Criterio -> Bloque -> [Usuario] -> Usuario
+quienSería unCriterio unBloque = foldl1 (buscarAl unCriterio unBloque)
+
 pruebasConBloque1 = hspec $ do
   describe "Pruebas con bloque1" $ do
     it "21 - A partir del bloque 1 y pepe, decir cómo queda el usuario con su nuevo saldo en su billetera. Debería quedar con su mismo nombre, pero con una billetera de 18." $
