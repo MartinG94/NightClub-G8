@@ -182,12 +182,17 @@ decidirEntreBloques unUsuario unBloque otroBloque
 elPeorBloque :: Usuario -> BlockChain -> Bloque
 elPeorBloque unUsuario = foldl1 (decidirEntreBloques unUsuario)
 
+cómoEstabaEn :: Int -> BlockChain -> Usuario -> Usuario
+cómoEstabaEn ciertoPunto blockChain = cómoQuedaSegún (crearBloqueCon (take ciertoPunto blockChain))
+
 pruebasConBlockChain = hspec $ do
   describe "Pruebas con BlockChain" $ do
     it "25 - El peor bloque para pepe de la BlockChain lo deja con un saldo de 18" $
       (billetera . cómoQuedaSegún (elPeorBloque pepe blockChain1)) pepe `shouldBe` 18
     it "26 - Pepe queda con 115 monedas cuando se le aplica la BlockChain" $
       (billetera . cómoQuedaSegún (crearBloqueCon blockChain1)) pepe `shouldBe` 115
+    it "27 - Pepe queda con 51 monedas con los 3 primeros bloques de la BlockChain" $
+      (billetera . cómoEstabaEn 3 blockChain1) pepe `shouldBe` 51
 
 ejecutarTests = do
   pruebasConEventos
@@ -195,3 +200,4 @@ ejecutarTests = do
   pruebasConTransacciones
   pruebasConImpactar
   pruebasConBloque1
+  pruebasConBlockChain
