@@ -139,18 +139,18 @@ quedanConUnSaldoDeAlMenos :: Billetera -> Bloque -> [Usuario] -> [Usuario]
 quedanConUnSaldoDeAlMenos nroCréditos unBloque = filter ((>=nroCréditos).billetera.(cómoQuedaSegún unBloque))
 
 másAdinerado :: Criterio
-másAdinerado unUsuario otroUsuario = billetera unUsuario > billetera otroUsuario
+másAdinerado unUsuario otroUsuario = billetera unUsuario >= billetera otroUsuario
 
 menosAdinerado :: Criterio
-menosAdinerado unUsuario otroUsuario = billetera unUsuario < billetera otroUsuario
+menosAdinerado unUsuario otroUsuario = billetera unUsuario <= billetera otroUsuario
 
-buscarAl :: Criterio -> Bloque -> Usuario -> Usuario -> Usuario
-buscarAl unCriterio unBloque unUsuario otroUsuario
+quienEs :: Criterio -> Bloque -> Usuario -> Usuario -> Usuario
+quienEs unCriterio unBloque unUsuario otroUsuario
         | unCriterio (cómoQuedaSegún unBloque unUsuario) (cómoQuedaSegún unBloque otroUsuario) = unUsuario
         | otherwise = otroUsuario
 
 quienSería :: Criterio -> Bloque -> [Usuario] -> Usuario
-quienSería unCriterio unBloque = foldl1 (buscarAl unCriterio unBloque)
+quienSería unCriterio unBloque = foldl1 (quienEs unCriterio unBloque)
 
 pruebasConBloque1 = hspec $ do
   describe "Pruebas con bloque1" $ do
@@ -173,6 +173,14 @@ blockChain1 = [bloque2,bloque1,bloque1,bloque1,bloque1,bloque1,bloque1,bloque1,b
 
 crearBloqueCon :: BlockChain -> Bloque
 crearBloqueCon unBlockChain = foldl (++) (head unBlockChain) (tail unBlockChain)
+
+decidirEntreBloques :: Usuario -> Bloque -> Bloque -> Bloque
+decidirEntreBloques unUsuario unBloque otroBloque
+	| (billetera . cómoQuedaSegún unBloque) unUsuario < (billetera . cómoQuedaSegún otroBloque) unUsuario = unBloque
+	| otherwise = otroBloque
+
+elPeorBloque :: Usuario -> BlockChain -> Bloque
+elPeorBloque unUsuario = foldl1 (decidirEntreBloques unUsuario)
 
 ejecutarTests = do
   pruebasConEventos
