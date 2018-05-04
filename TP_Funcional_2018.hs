@@ -163,6 +163,17 @@ pruebasConBloque1 = hspec $ do
     it "23 - El menos adinerado, cuando se les aplica el bloque1 a pepe y lucho es lucho" $
       quienSería menosAdinerado bloque1 [pepe,lucho] `shouldBe` lucho
 
+type BlockChain = [Bloque]
+
+bloque2 :: Bloque
+bloque2 = [transacción2,transacción2,transacción2,transacción2,transacción2]
+
+blockChain1 :: BlockChain
+blockChain1 = [bloque2,bloque1,bloque1,bloque1,bloque1,bloque1,bloque1,bloque1,bloque1,bloque1,bloque1]
+
+crearBloqueCon :: BlockChain -> Bloque
+crearBloqueCon unBlockChain = foldl (++) (head unBlockChain) (tail unBlockChain)
+
 ejecutarTests = do
   pruebasConEventos
   pruebasConUsuarios
