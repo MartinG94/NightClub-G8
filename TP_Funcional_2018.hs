@@ -193,6 +193,13 @@ generarBlockInfinito unBloque = unBloque : generarBlockInfinito (duplicarTransac
 
 blockChainInfinita = generarBlockInfinito bloque1
 
+{- Conceptos Utilizados: Recursividad y Orden Superior -}
+
+bloquesNecesariosParaAlcanzar :: Billetera -> BlockChain -> Usuario -> Int
+bloquesNecesariosParaAlcanzar unaCantidad unBlockInfinito usuario
+        | ((>unaCantidad) . billetera . cómoQuedaSegún (crearBloqueCon (take 1 unBlockInfinito))) usuario = 0
+        | otherwise = 1 + bloquesNecesariosParaAlcanzar unaCantidad (tail unBlockInfinito) usuario
+
 pruebasConBlockChain = hspec $ do
   describe "Pruebas con BlockChain" $ do
     it "25 - El peor bloque para pepe de la BlockChain lo deja con un saldo de 18" $
