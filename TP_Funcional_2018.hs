@@ -193,6 +193,8 @@ pruebasConBlockChain = hspec $ do
       (billetera . cómoQuedaSegún (crearBloqueCon blockChain1)) pepe `shouldBe` 115
     it "27 - Pepe queda con 51 monedas con los 3 primeros bloques de la BlockChain" $
       (billetera . cómoEstabaEn 3 blockChain1) pepe `shouldBe` 51
+    it "28 - La suma de las billeteras de pepe y lucho cuando se les aplica la BlockChain es 115" $
+      (sum . map billetera . map (cómoQuedaSegún (crearBloqueCon blockChain1))) [pepe,lucho] `shouldBe` 115
 
 ejecutarTests = do
   pruebasConEventos
