@@ -133,7 +133,7 @@ bloque1 :: Bloque
 bloque1 = [transacción1, transacción2, transacción2, transacción2, transacción3, transacción4, transacción5, transacción3]
 
 cómoQuedaSegún :: Bloque -> Usuario -> Usuario
-cómoQuedaSegún unBloque usuario = foldr (impactar) usuario unBloque
+cómoQuedaSegún unBloque usuario = foldr impactar usuario unBloque
 
 quedanConUnSaldoDeAlMenos :: Billetera -> Bloque -> [Usuario] -> [Usuario]
 quedanConUnSaldoDeAlMenos nroCréditos unBloque = filter ((>=nroCréditos).billetera.(cómoQuedaSegún unBloque))
@@ -158,6 +158,10 @@ pruebasConBloque1 = hspec $ do
       cómoQuedaSegún bloque1 pepe `shouldBe` nuevaBilletera 18 pepe
     it "22 - A partir de pepe y lucho y el bloque1, solo pepe queda con un saldo de al menos 10." $
       quedanConUnSaldoDeAlMenos 10 bloque1 [pepe,lucho] `shouldBe` [pepe]
+    it "23 - El más adinerado, cuando se les aplica el bloque1 a pepe y lucho es pepe" $
+      quienSería másAdinerado bloque1 [pepe,lucho] `shouldBe` pepe
+    it "23 - El menos adinerado, cuando se les aplica el bloque1 a pepe y lucho es lucho" $
+      quienSería menosAdinerado bloque1 [pepe,lucho] `shouldBe` lucho
 
 ejecutarTests = do
   pruebasConEventos
