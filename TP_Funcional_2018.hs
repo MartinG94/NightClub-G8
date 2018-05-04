@@ -160,7 +160,7 @@ pruebasConBloque1 = hspec $ do
       quedanConUnSaldoDeAlMenos 10 bloque1 [pepe,lucho] `shouldBe` [pepe]
     it "23 - El más adinerado, cuando se les aplica el bloque1 a pepe y lucho es pepe" $
       quienSería másAdinerado bloque1 [pepe,lucho] `shouldBe` pepe
-    it "23 - El menos adinerado, cuando se les aplica el bloque1 a pepe y lucho es lucho" $
+    it "24 - El menos adinerado, cuando se les aplica el bloque1 a pepe y lucho es lucho" $
       quienSería menosAdinerado bloque1 [pepe,lucho] `shouldBe` lucho
 
 type BlockChain = [Bloque]
@@ -176,11 +176,18 @@ crearBloqueCon unBlockChain = foldl (++) (head unBlockChain) (tail unBlockChain)
 
 decidirEntreBloques :: Usuario -> Bloque -> Bloque -> Bloque
 decidirEntreBloques unUsuario unBloque otroBloque
-	| (billetera . cómoQuedaSegún unBloque) unUsuario < (billetera . cómoQuedaSegún otroBloque) unUsuario = unBloque
-	| otherwise = otroBloque
+        | (billetera . cómoQuedaSegún unBloque) unUsuario < (billetera . cómoQuedaSegún otroBloque) unUsuario = unBloque
+        | otherwise = otroBloque
 
 elPeorBloque :: Usuario -> BlockChain -> Bloque
 elPeorBloque unUsuario = foldl1 (decidirEntreBloques unUsuario)
+
+pruebasConBlockChain = hspec $ do
+  describe "Pruebas con BlockChain" $ do
+    it "25 - El peor bloque para pepe de la BlockChain lo deja con un saldo de 18" $
+      (billetera . cómoQuedaSegún (elPeorBloque pepe blockChain1)) pepe `shouldBe` 18
+    it "26 - Pepe queda con 115 monedas cuando se le aplica la BlockChain" $
+      (billetera . cómoQuedaSegún (crearBloqueCon blockChain1)) pepe `shouldBe` 115
 
 ejecutarTests = do
   pruebasConEventos
