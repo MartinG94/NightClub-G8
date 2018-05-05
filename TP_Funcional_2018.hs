@@ -139,19 +139,19 @@ cómoQuedaSegún unBloque usuario = foldr impactar usuario unBloque
 quedanConUnSaldoDeAlMenos :: Billetera -> Bloque -> [Usuario] -> [Usuario]
 quedanConUnSaldoDeAlMenos nroCréditos unBloque = filter ((>=nroCréditos).billetera.(cómoQuedaSegún unBloque))
 
-másAdinerado :: Criterio
-másAdinerado unUsuario otroUsuario = billetera unUsuario >= billetera otroUsuario
+elMásAdinerado :: Criterio
+elMásAdinerado unUsuario otroUsuario = billetera unUsuario >= billetera otroUsuario
 
-menosAdinerado :: Criterio
-menosAdinerado unUsuario otroUsuario = billetera unUsuario <= billetera otroUsuario
+elMenosAdinerado :: Criterio
+elMenosAdinerado unUsuario otroUsuario = billetera unUsuario <= billetera otroUsuario
 
-quienEs :: Criterio -> Bloque -> Usuario -> Usuario -> Usuario
-quienEs unCriterio unBloque unUsuario otroUsuario
+seleccionarUsuario :: Criterio -> Bloque -> Usuario -> Usuario -> Usuario
+seleccionarUsuario unCriterio unBloque unUsuario otroUsuario
         | unCriterio (cómoQuedaSegún unBloque unUsuario) (cómoQuedaSegún unBloque otroUsuario) = unUsuario
         | otherwise = otroUsuario
 
 quienSería :: Criterio -> Bloque -> [Usuario] -> Usuario
-quienSería unCriterio unBloque = foldl1 (quienEs unCriterio unBloque)
+quienSería unCriterio unBloque = foldl1 (seleccionarUsuario unCriterio unBloque)
 
 pruebasConBloque1 = hspec $ do
   describe "Pruebas con bloque1." $ do
@@ -160,9 +160,9 @@ pruebasConBloque1 = hspec $ do
     it "22 - A partir de pepe y lucho y el bloque1, solo pepe queda con un saldo de al menos 10." $
       quedanConUnSaldoDeAlMenos 10 bloque1 [pepe,lucho] `shouldBe` [pepe]
     it "23 - El más adinerado, cuando se les aplica el bloque1 a pepe y lucho es pepe." $
-      quienSería másAdinerado bloque1 [pepe,lucho] `shouldBe` pepe
+      quienSería elMásAdinerado bloque1 [pepe,lucho] `shouldBe` pepe
     it "24 - El menos adinerado, cuando se les aplica el bloque1 a pepe y lucho es lucho." $
-      quienSería menosAdinerado bloque1 [pepe,lucho] `shouldBe` lucho
+      quienSería elMenosAdinerado bloque1 [pepe,lucho] `shouldBe` lucho
 
 type BlockChain = [Bloque]
 
