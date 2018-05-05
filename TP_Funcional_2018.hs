@@ -154,6 +154,8 @@ seleccionarUsuario unCriterio unBloque unUsuario otroUsuario
 quiénSería :: Criterio -> Bloque -> [Usuario] -> Usuario
 quiénSería unCriterio unBloque = foldl1 (seleccionarUsuario unCriterio unBloque)
 
+determinar unaBusqueda unCriterio unObjeto unaLista = unaBusqueda unCriterio unObjeto unaLista
+
 pruebasConBloque1 = hspec $ do
   describe "Pruebas con bloque1." $ do
     it "21 - A partir del bloque 1 y pepe, decir cómo queda el usuario con su nuevo saldo en su billetera. Debería quedar con su mismo nombre, pero con una billetera de 18." $
@@ -161,9 +163,9 @@ pruebasConBloque1 = hspec $ do
     it "22 - A partir de pepe y lucho y el bloque1, solo pepe queda con un saldo de al menos 10." $
       quedanConUnSaldoDeAlMenos 10 bloque1 [pepe,lucho] `shouldBe` [pepe]
     it "23 - El más adinerado, cuando se les aplica el bloque1 a pepe y lucho es pepe." $
-      quiénSería elMásAdinerado bloque1 [pepe,lucho] `shouldBe` pepe
+      determinar quiénSería elMásAdinerado bloque1 [pepe,lucho] `shouldBe` pepe
     it "24 - El menos adinerado, cuando se les aplica el bloque1 a pepe y lucho es lucho." $
-      quiénSería elMenosAdinerado bloque1 [pepe,lucho] `shouldBe` lucho
+      determinar quiénSería elMenosAdinerado bloque1 [pepe,lucho] `shouldBe` lucho
 
 type BlockChain = [Bloque]
 
@@ -214,7 +216,7 @@ bloquesNecesariosParaAlcanzar unaCantidad unBlockInfinito usuario
 pruebasConBlockChain = hspec $ do
   describe "Pruebas con BlockChain." $ do
     it "25 - El peor bloque para pepe de la BlockChain lo deja con un saldo de 18." $
-      (billetera . cómoQuedaSegún (cuálFue elPeorBloquePara pepe blockChain1)) pepe `shouldBe` 18
+      (billetera . cómoQuedaSegún (determinar cuálFue elPeorBloquePara pepe blockChain1)) pepe `shouldBe` 18
     it "26 - Pepe queda con 115 monedas cuando se le aplica la BlockChain." $
       (billetera . cómoQuedaSegún (crearBloqueCon blockChain1)) pepe `shouldBe` 115
     it "27 - Pepe queda con 51 monedas con los 3 primeros bloques de la BlockChain." $
