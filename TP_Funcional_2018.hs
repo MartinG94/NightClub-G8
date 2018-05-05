@@ -57,7 +57,6 @@ pruebasConUsuarios = hspec $ do --Usar composición
       (upgrade . extracción 2 . depósito 15 . billetera) pepe `shouldBe` 27.6
 
 type Transacción = Usuario -> Evento
-type Criterio = Usuario -> Usuario -> Bool
 
 compararUsuario :: Criterio
 compararUsuario usuarioAComparar usuario = nombre usuarioAComparar == nombre usuario
@@ -139,6 +138,8 @@ cómoQuedaSegún unBloque usuario = foldr impactar usuario unBloque
 quedanConUnSaldoDeAlMenos :: Billetera -> Bloque -> [Usuario] -> [Usuario]
 quedanConUnSaldoDeAlMenos nroCréditos unBloque = filter ((>=nroCréditos).billetera.(cómoQuedaSegún unBloque))
 
+type Criterio = Usuario -> Usuario -> Bool
+
 elMásAdinerado :: Criterio
 elMásAdinerado unUsuario otroUsuario = billetera unUsuario >= billetera otroUsuario
 
@@ -150,8 +151,8 @@ seleccionarUsuario unCriterio unBloque unUsuario otroUsuario
         | unCriterio (cómoQuedaSegún unBloque unUsuario) (cómoQuedaSegún unBloque otroUsuario) = unUsuario
         | otherwise = otroUsuario
 
-quienSería :: Criterio -> Bloque -> [Usuario] -> Usuario
-quienSería unCriterio unBloque = foldl1 (seleccionarUsuario unCriterio unBloque)
+quiénSería :: Criterio -> Bloque -> [Usuario] -> Usuario
+quiénSería unCriterio unBloque = foldl1 (seleccionarUsuario unCriterio unBloque)
 
 pruebasConBloque1 = hspec $ do
   describe "Pruebas con bloque1." $ do
@@ -160,9 +161,9 @@ pruebasConBloque1 = hspec $ do
     it "22 - A partir de pepe y lucho y el bloque1, solo pepe queda con un saldo de al menos 10." $
       quedanConUnSaldoDeAlMenos 10 bloque1 [pepe,lucho] `shouldBe` [pepe]
     it "23 - El más adinerado, cuando se les aplica el bloque1 a pepe y lucho es pepe." $
-      quienSería elMásAdinerado bloque1 [pepe,lucho] `shouldBe` pepe
+      quiénSería elMásAdinerado bloque1 [pepe,lucho] `shouldBe` pepe
     it "24 - El menos adinerado, cuando se les aplica el bloque1 a pepe y lucho es lucho." $
-      quienSería elMenosAdinerado bloque1 [pepe,lucho] `shouldBe` lucho
+      quiénSería elMenosAdinerado bloque1 [pepe,lucho] `shouldBe` lucho
 
 type BlockChain = [Bloque]
 
@@ -175,13 +176,21 @@ blockChain1 = [bloque2, bloque1, bloque1, bloque1, bloque1, bloque1, bloque1, bl
 crearBloqueCon :: BlockChain -> Bloque
 crearBloqueCon unBlockChain = foldl (++) (head unBlockChain) (tail unBlockChain)
 
-decidirEntreBloques :: Usuario -> Bloque -> Bloque -> Bloque
-decidirEntreBloques unUsuario unBloque otroBloque
-        | (billetera . cómoQuedaSegún unBloque) unUsuario < (billetera . cómoQuedaSegún otroBloque) unUsuario = unBloque
+type Pauta = Usuario -> Bloque -> Bloque -> Bool
+
+elPeorBloquePara :: Pauta
+elPeorBloquePara usuario unBloque otroBloque = (billetera . cómoQuedaSegún unBloque) usuario <= (billetera . cómoQuedaSegún otroBloque) usuario
+
+elMejorBloquePara :: Pauta
+elMejorBloquePara usuario unBloque otroBloque = (billetera . cómoQuedaSegún unBloque) usuario >= (billetera . cómoQuedaSegún otroBloque) usuario
+
+seleccionarBloque :: Pauta -> Usuario -> Bloque -> Bloque -> Bloque
+seleccionarBloque unaPauta usuario unBloque otroBloque
+        | unaPauta usuario unBloque otroBloque = unBloque
         | otherwise = otroBloque
 
-elPeorBloque :: Usuario -> BlockChain -> Bloque
-elPeorBloque unUsuario = foldl1 (decidirEntreBloques unUsuario)
+cuálFue :: Pauta -> Usuario -> BlockChain -> Bloque
+cuálFue unaPauta unUsuario = foldl1 (seleccionarBloque unaPauta unUsuario)
 
 cómoEstabaEn :: Int -> BlockChain -> Usuario -> Usuario
 cómoEstabaEn ciertoPunto blockChain = cómoQuedaSegún (crearBloqueCon (take ciertoPunto blockChain))
@@ -205,7 +214,7 @@ bloquesNecesariosParaAlcanzar unaCantidad unBlockInfinito usuario
 pruebasConBlockChain = hspec $ do
   describe "Pruebas con BlockChain." $ do
     it "25 - El peor bloque para pepe de la BlockChain lo deja con un saldo de 18." $
-      (billetera . cómoQuedaSegún (elPeorBloque pepe blockChain1)) pepe `shouldBe` 18
+      (billetera . cómoQuedaSegún (cuálFue elPeorBloquePara pepe blockChain1)) pepe `shouldBe` 18
     it "26 - Pepe queda con 115 monedas cuando se le aplica la BlockChain." $
       (billetera . cómoQuedaSegún (crearBloqueCon blockChain1)) pepe `shouldBe` 115
     it "27 - Pepe queda con 51 monedas con los 3 primeros bloques de la BlockChain." $
