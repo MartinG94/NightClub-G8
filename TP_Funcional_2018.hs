@@ -138,7 +138,7 @@ quedanConUnSaldoDeAlMenos :: Billetera -> Bloque -> [Usuario] -> [Usuario]
 quedanConUnSaldoDeAlMenos nroCréditos unBloque = filter ((>=nroCréditos).billetera.(cómoQuedaSegún unBloque))
 
 billeteraLuegoDe :: Bloque -> Usuario -> Billetera
-billeteraLuegoDe unBloque unUsuario = (billetera . cómoQuedaSegún unBloque) unUsuario
+billeteraLuegoDe unBloque = billetera . cómoQuedaSegún unBloque
 
 mayor = (>=)
 menor = (<=)
@@ -146,16 +146,16 @@ menor = (<=)
 determinarEl criterio unaFunción unElemento otroElemento = criterio (unaFunción unElemento) (unaFunción otroElemento)
 
 alMásAdineradoSegún :: Bloque -> Usuario -> Usuario -> Bool
-alMásAdineradoSegún unBloque unUsuario otroUsuario = determinarEl mayor (billeteraLuegoDe unBloque) unUsuario otroUsuario
+alMásAdineradoSegún unBloque = determinarEl mayor (billeteraLuegoDe unBloque)
 
 alMenosAdineradoSegún :: Bloque -> Usuario -> Usuario -> Bool
-alMenosAdineradoSegún unBloque unUsuario otroUsuario = determinarEl menor (billeteraLuegoDe unBloque) unUsuario otroUsuario
+alMenosAdineradoSegún unBloque = determinarEl menor (billeteraLuegoDe unBloque)
 
 elMásGrandeSegún unCriterio unaSemilla primerElemento segundoElemento
         | unCriterio unaSemilla primerElemento segundoElemento = primerElemento
         | otherwise = segundoElemento
 
-determinar elCriterioGenérico valorInicial = foldl1 (elMásGrandeSegún elCriterioGenérico valorInicial)
+buscar elCriterioGenérico valorInicial = foldl1 (elMásGrandeSegún elCriterioGenérico valorInicial)
 
 pruebasConBloque1 = hspec $ do
   describe "Pruebas con bloque1." $ do
@@ -164,10 +164,9 @@ pruebasConBloque1 = hspec $ do
     it "22 - A partir de pepe y lucho y el bloque1, solo pepe queda con un saldo de al menos 10." $
       quedanConUnSaldoDeAlMenos 10 bloque1 [pepe,lucho] `shouldBe` [pepe]
     it "23 - El más adinerado, cuando se les aplica el bloque1 a pepe y lucho es pepe." $
-      determinar alMásAdineradoSegún bloque1 [pepe,lucho] `shouldBe` pepe
+      buscar alMásAdineradoSegún bloque1 [pepe,lucho] `shouldBe` pepe
     it "24 - El menos adinerado, cuando se les aplica el bloque1 a pepe y lucho es lucho." $
-      determinar alMenosAdineradoSegún bloque1 [pepe,lucho] `shouldBe` lucho
-
+      buscar alMenosAdineradoSegún bloque1 [pepe,lucho] `shouldBe` lucho
 
 type BlockChain = [Bloque]
 
@@ -181,13 +180,16 @@ crearBloqueCon :: BlockChain -> Bloque
 crearBloqueCon = concat
 
 elPeorBloquePara :: Usuario -> Bloque -> Bloque -> Bool
-elPeorBloquePara usuario unBloque otroBloque = determinarEl menor (flip billeteraLuegoDe usuario) unBloque otroBloque
+elPeorBloquePara usuario = determinarEl menor (flip billeteraLuegoDe usuario)
 
 elMejorBloquePara :: Usuario -> Bloque -> Bloque -> Bool
-elMejorBloquePara usuario unBloque otroBloque = determinarEl mayor (flip billeteraLuegoDe usuario) unBloque otroBloque
+elMejorBloquePara usuario = determinarEl mayor (flip billeteraLuegoDe usuario)
 
 cómoEstabaEn :: Int -> BlockChain -> Usuario -> Usuario
-cómoEstabaEn ciertoPunto blockChain = cómoQuedaSegún (crearBloqueCon (take ciertoPunto blockChain))
+cómoEstabaEn ciertoPunto unBlockChain = cómoQuedaSegún (crearBloqueCon (take ciertoPunto unBlockChain))
+
+laSumaDeLasBilleteras :: BlockChain -> [Usuario] -> Billetera
+laSumaDeLasBilleteras unBlockChain = sum . map billetera . map (cómoQuedaSegún (crearBloqueCon unBlockChain))
 
 duplicarTransacciones :: Bloque -> Bloque
 duplicarTransacciones unBloque = unBloque ++ unBloque
@@ -195,8 +197,8 @@ duplicarTransacciones unBloque = unBloque ++ unBloque
 generarBlockInfinito :: Bloque -> BlockChain
 generarBlockInfinito unBloque = unBloque : (generarBlockInfinito . duplicarTransacciones) unBloque
 
-blockChainInfinito :: BlockChain
-blockChainInfinito = generarBlockInfinito bloque1
+listaDeBloquesInfinita :: BlockChain
+listaDeBloquesInfinita = generarBlockInfinito bloque1
 
 {- Conceptos Utilizados: Recursividad y Orden Superior -}
 
@@ -208,7 +210,7 @@ bloquesNecesariosParaAlcanzar unaCantidad unBlockInfinito usuario
 pruebasConBlockChain = hspec $ do
   describe "Pruebas con BlockChain." $ do
     it "25 - El peor bloque para pepe de la BlockChain lo deja con un saldo de 18." $
-      (billetera . cómoQuedaSegún (determinar elPeorBloquePara pepe blockChain1)) pepe `shouldBe` 18
+      (billetera . cómoQuedaSegún (buscar elPeorBloquePara pepe blockChain1)) pepe `shouldBe` 18
     it "26 - Pepe queda con 115 monedas cuando se le aplica la BlockChain." $
       (billetera . cómoQuedaSegún (crearBloqueCon blockChain1)) pepe `shouldBe` 115
     it "27 - Pepe queda con 51 monedas con los 3 primeros bloques de la BlockChain." $
@@ -216,9 +218,9 @@ pruebasConBlockChain = hspec $ do
     it "27.b - Cuando se pide el usuario en un punto que supera la cantidad de bloques de la BlockChain, el resultado es 115." $
       (billetera . cómoEstabaEn 210 blockChain1) pepe `shouldBe` 115
     it "28 - La suma de las billeteras de pepe y lucho cuando se les aplica la BlockChain es 115." $
-      (sum . map billetera . map (cómoQuedaSegún (crearBloqueCon blockChain1))) [pepe,lucho] `shouldBe` 115
+      laSumaDeLasBilleteras blockChain1 [pepe,lucho] `shouldBe` 115
     it "29 - Los bloques necesarios para alcanzar un saldo de 10000 con una BlockChain infinita creada a partir del bloque1, es de 11." $
-      bloquesNecesariosParaAlcanzar 10000 blockChainInfinito pepe `shouldBe` 11
+      bloquesNecesariosParaAlcanzar 10000 listaDeBloquesInfinita pepe `shouldBe` 11
 
 ejecutarTests = do
   pruebasConEventos
