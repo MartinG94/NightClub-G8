@@ -58,7 +58,6 @@ pruebasConUsuarios = hspec $ do --Usar composición
 
 type Transacción = Usuario -> Evento
 
-compararUsuario :: Criterio
 compararUsuario usuarioAComparar usuario = nombre usuarioAComparar == nombre usuario
 
 crearUnaNuevaTransacción :: Usuario -> Evento -> Transacción --Armar una transaccion genérica que reciba dos usuarios y un evento
@@ -138,21 +137,25 @@ cómoQuedaSegún unBloque usuario = foldr impactar usuario unBloque
 quedanConUnSaldoDeAlMenos :: Billetera -> Bloque -> [Usuario] -> [Usuario]
 quedanConUnSaldoDeAlMenos nroCréditos unBloque = filter ((>=nroCréditos).billetera.(cómoQuedaSegún unBloque))
 
-type Criterio = Usuario -> Usuario -> Bool
+billeteraLuegoDe :: Bloque -> Usuario -> Billetera
+billeteraLuegoDe unBloque unUsuario = (billetera . cómoQuedaSegún unBloque) unUsuario
 
-elMásAdinerado :: Criterio
-elMásAdinerado unUsuario otroUsuario = billetera unUsuario >= billetera otroUsuario
+mayor = (>=)
+menor = (<=)
 
-elMenosAdinerado :: Criterio
-elMenosAdinerado unUsuario otroUsuario = billetera unUsuario <= billetera otroUsuario
+determinarEl criterio unaFunción unElemento otroElemento = criterio (unaFunción unElemento) (unaFunción otroElemento)
 
-seleccionarUsuario :: Criterio -> Bloque -> Usuario -> Usuario -> Usuario
-seleccionarUsuario unCriterio unBloque unUsuario otroUsuario
-        | unCriterio (cómoQuedaSegún unBloque unUsuario) (cómoQuedaSegún unBloque otroUsuario) = unUsuario
-        | otherwise = otroUsuario
+alMásAdineradoSegún :: Bloque -> Usuario -> Usuario -> Bool
+alMásAdineradoSegún unBloque unUsuario otroUsuario = determinarEl mayor (billeteraLuegoDe unBloque) unUsuario otroUsuario
 
-quiénSería :: Criterio -> Bloque -> [Usuario] -> Usuario
-quiénSería unCriterio unBloque = foldl1 (seleccionarUsuario unCriterio unBloque)
+alMenosAdineradoSegún :: Bloque -> Usuario -> Usuario -> Bool
+alMenosAdineradoSegún unBloque unUsuario otroUsuario = determinarEl menor (billeteraLuegoDe unBloque) unUsuario otroUsuario
+
+elMásGrandeSegún unCriterio unaSemilla primerElemento segundoElemento
+        | unCriterio unaSemilla primerElemento segundoElemento = primerElemento
+        | otherwise = segundoElemento
+
+determinar elCriterioGenérico valorInicial = foldl1 (elMásGrandeSegún elCriterioGenérico valorInicial)
 
 pruebasConBloque1 = hspec $ do
   describe "Pruebas con bloque1." $ do
@@ -161,9 +164,10 @@ pruebasConBloque1 = hspec $ do
     it "22 - A partir de pepe y lucho y el bloque1, solo pepe queda con un saldo de al menos 10." $
       quedanConUnSaldoDeAlMenos 10 bloque1 [pepe,lucho] `shouldBe` [pepe]
     it "23 - El más adinerado, cuando se les aplica el bloque1 a pepe y lucho es pepe." $
-      quiénSería elMásAdinerado bloque1 [pepe,lucho] `shouldBe` pepe
+      determinar alMásAdineradoSegún bloque1 [pepe,lucho] `shouldBe` pepe
     it "24 - El menos adinerado, cuando se les aplica el bloque1 a pepe y lucho es lucho." $
-      quiénSería elMenosAdinerado bloque1 [pepe,lucho] `shouldBe` lucho
+      determinar alMenosAdineradoSegún bloque1 [pepe,lucho] `shouldBe` lucho
+
 
 type BlockChain = [Bloque]
 
@@ -176,21 +180,11 @@ blockChain1 = [bloque2, bloque1, bloque1, bloque1, bloque1, bloque1, bloque1, bl
 crearBloqueCon :: BlockChain -> Bloque
 crearBloqueCon = concat
 
-type Pauta = Usuario -> Bloque -> Bloque -> Bool
+elPeorBloquePara :: Usuario -> Bloque -> Bloque -> Bool
+elPeorBloquePara usuario unBloque otroBloque = determinarEl menor (flip billeteraLuegoDe usuario) unBloque otroBloque
 
-elPeorBloquePara :: Pauta
-elPeorBloquePara usuario unBloque otroBloque = (billetera . cómoQuedaSegún unBloque) usuario <= (billetera . cómoQuedaSegún otroBloque) usuario
-
-elMejorBloquePara :: Pauta
-elMejorBloquePara usuario unBloque otroBloque = (billetera . cómoQuedaSegún unBloque) usuario >= (billetera . cómoQuedaSegún otroBloque) usuario
-
-seleccionarBloque :: Pauta -> Usuario -> Bloque -> Bloque -> Bloque
-seleccionarBloque unaPauta usuario unBloque otroBloque
-        | unaPauta usuario unBloque otroBloque = unBloque
-        | otherwise = otroBloque
-
-cuálFue :: Pauta -> Usuario -> BlockChain -> Bloque
-cuálFue unaPauta unUsuario = foldl1 (seleccionarBloque unaPauta unUsuario)
+elMejorBloquePara :: Usuario -> Bloque -> Bloque -> Bool
+elMejorBloquePara usuario unBloque otroBloque = determinarEl mayor (flip billeteraLuegoDe usuario) unBloque otroBloque
 
 cómoEstabaEn :: Int -> BlockChain -> Usuario -> Usuario
 cómoEstabaEn ciertoPunto blockChain = cómoQuedaSegún (crearBloqueCon (take ciertoPunto blockChain))
@@ -214,7 +208,7 @@ bloquesNecesariosParaAlcanzar unaCantidad unBlockInfinito usuario
 pruebasConBlockChain = hspec $ do
   describe "Pruebas con BlockChain." $ do
     it "25 - El peor bloque para pepe de la BlockChain lo deja con un saldo de 18." $
-      (billetera . cómoQuedaSegún (cuálFue elPeorBloquePara pepe blockChain1)) pepe `shouldBe` 18
+      (billetera . cómoQuedaSegún (determinar elPeorBloquePara pepe blockChain1)) pepe `shouldBe` 18
     it "26 - Pepe queda con 115 monedas cuando se le aplica la BlockChain." $
       (billetera . cómoQuedaSegún (crearBloqueCon blockChain1)) pepe `shouldBe` 115
     it "27 - Pepe queda con 51 monedas con los 3 primeros bloques de la BlockChain." $
