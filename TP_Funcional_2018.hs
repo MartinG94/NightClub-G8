@@ -193,7 +193,7 @@ duplicarTransacciones :: Bloque -> Bloque
 duplicarTransacciones unBloque = unBloque ++ unBloque
 
 generarBlockInfinito :: Bloque -> BlockChain
-generarBlockInfinito unBloque = unBloque : generarBlockInfinito (duplicarTransacciones unBloque)
+generarBlockInfinito unBloque = unBloque : (generarBlockInfinito . duplicarTransacciones) unBloque
 
 blockChainInfinito :: BlockChain
 blockChainInfinito = generarBlockInfinito bloque1
