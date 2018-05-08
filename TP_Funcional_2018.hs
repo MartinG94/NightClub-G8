@@ -204,7 +204,7 @@ listaDeBloquesInfinita = generarBlockInfinito bloque1
 
 bloquesNecesariosParaAlcanzar :: Billetera -> BlockChain -> Usuario -> Int
 bloquesNecesariosParaAlcanzar unaCantidad unBlockInfinito usuario
-        | ((>unaCantidad) . billetera . cómoQuedaSegún (crearBloqueCon (take 1 unBlockInfinito))) usuario = 0
+        | ((>unaCantidad) . billetera . cómoEstabaEn 1 unBlockInfinito) usuario = 0
         | otherwise = 1 + bloquesNecesariosParaAlcanzar unaCantidad (tail unBlockInfinito) usuario
 
 pruebasConBlockChain = hspec $ do
