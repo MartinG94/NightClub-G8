@@ -188,8 +188,8 @@ elMejorBloquePara usuario = determinarEl mayor (flip billeteraLuegoDe usuario)
 cómoEstabaEn :: Int -> BlockChain -> Usuario -> Usuario
 cómoEstabaEn ciertoPunto unBlockChain = cómoQuedaSegún (crearBloqueCon (take ciertoPunto unBlockChain))
 
-laSumaDeLasBilleteras :: BlockChain -> [Usuario] -> Billetera
-laSumaDeLasBilleteras unBlockChain = sum . map billetera . map (cómoQuedaSegún (crearBloqueCon unBlockChain))
+laSumaDeLasBilleterasSegún :: BlockChain -> [Usuario] -> Billetera
+laSumaDeLasBilleterasSegún unBlockChain = sum . map (billetera . cómoQuedaSegún (crearBloqueCon unBlockChain))
 
 duplicarTransacciones :: Bloque -> Bloque
 duplicarTransacciones unBloque = unBloque ++ unBloque
@@ -218,7 +218,7 @@ pruebasConBlockChain = hspec $ do
     it "27.b - Cuando se pide el usuario en un punto que supera la cantidad de bloques de la BlockChain, el resultado es 115." $
       (billetera . cómoEstabaEn 210 blockChain1) pepe `shouldBe` 115
     it "28 - La suma de las billeteras de pepe y lucho cuando se les aplica la BlockChain es 115." $
-      laSumaDeLasBilleteras blockChain1 [pepe,lucho] `shouldBe` 115
+      laSumaDeLasBilleterasSegún blockChain1 [pepe,lucho] `shouldBe` 115
     it "29 - Los bloques necesarios para alcanzar un saldo de 10000 con una BlockChain infinita creada a partir del bloque1, es de 11." $
       bloquesNecesariosParaAlcanzar 10000 listaDeBloquesInfinita pepe `shouldBe` 11
 
