@@ -48,7 +48,7 @@ pepe = Usuario "José" 10
 lucho = Usuario "Luciano" 2
 
 pruebasConUsuarios = hspec $ do --Usar composición
-  describe "Verificando usuarios." $ do
+  describe "Pruebas con los usuarios." $ do
     it "8 - La billetera de pepe es de 10." $
       billetera pepe `shouldBe` 10
     it "9 - La billetera de Pepe, luego de un cierre de cuenta, es de 0." $
@@ -97,9 +97,9 @@ transacción5 = crearPagosEntreUsuarios pepe 7 lucho
 
 pruebasConTransacciones = hspec $ do
   describe "Pruebas con las transacciones." $ do
-    it "11 - La transacción 1 se aplica a pepe, esto produce el evento Queda igual, que si se aplica a una billetera de 20, debe dar una billetera con ese mismo monto." $
+    it "11 - La transacción 1 se aplica a pepe, esto produce el evento Queda igual. Al aplicarlo a una billetera de 20, queda con 20." $
       transacción1 pepe 20 `shouldBe` 20
-    it "12 - La transacción 2 se aplica a pepe, esto produce el evento depositar 5, que si se aplica a una billetera de 10, queda con 15." $
+    it "12 - La transacción 2 se aplica a pepe, esto produce el evento depositar 5. Al aplicarlo a una billetera de 10, queda con 15." $
       transacción2 pepe 10 `shouldBe` 15
     it "13 - La transacción 2 se aplica a pepe2, esto produce un evento, que aplicado a una billetera de 50, queda con 55." $
       transacción2 pepe2 50 `shouldBe` 55
@@ -107,9 +107,9 @@ pruebasConTransacciones = hspec $ do
       transacción3 lucho 10  `shouldBe` 0
     it "15 - La transacción 4 se aplica a lucho. Ver cómo queda una billetera inicial de 10. Debería quedar con 34." $
       transacción4 lucho 10  `shouldBe` 34
-    it "16 - La transacción 5 se aplica a pepe, esto produce el evento de extracción 7. Al aplicarlo a una billetera de 10, debería dar una nueva billetera de 3." $
+    it "16 - La transacción 5 se aplica a pepe, esto produce el evento de extracción 7. Al aplicarlo a una billetera de 10, queda con 3." $
       transacción5 pepe 10 `shouldBe` 3
-    it "17 - La transacción 5 se aplica a lucho, esto produce el evento de depósito 7. Al aplicarlo a una billetera de 10, debería dar una nueva billetera de 17." $
+    it "17 - La transacción 5 se aplica a lucho, esto produce el evento de depósito 7. Al aplicarlo a una billetera de 10, queda con 17." $
       transacción5 lucho 10 `shouldBe` 17
 
 -- 2da Parte
@@ -159,7 +159,7 @@ buscar elCriterioGenérico valorInicial = foldl1 (elMásGrandeSegún elCriterioG
 
 pruebasConBloque1 = hspec $ do
   describe "Pruebas con bloque1." $ do
-    it "21 - A partir del bloque 1 y pepe, decir cómo queda el usuario con su nuevo saldo en su billetera. Debería quedar con su mismo nombre, pero con una billetera de 18." $
+    it "21 - A partir del bloque 1 y pepe, debería quedar con su mismo nombre, pero con una billetera de 18." $
       cómoQuedaSegún bloque1 pepe `shouldBe` nuevaBilletera 18 pepe
     it "22 - A partir de pepe y lucho y el bloque1, solo pepe queda con un saldo de al menos 10." $
       quedanConUnSaldoDeAlMenos 10 bloque1 [pepe,lucho] `shouldBe` [pepe]
@@ -188,8 +188,8 @@ elMejorBloquePara usuario = determinarEl mayor (flip billeteraLuegoDe usuario)
 cómoEstabaEn :: Int -> BlockChain -> Usuario -> Usuario
 cómoEstabaEn ciertoPunto unBlockChain = cómoQuedaSegún (crearBloqueCon (take ciertoPunto unBlockChain))
 
-laSumaDeLasBilleterasSegún :: BlockChain -> [Usuario] -> Billetera
-laSumaDeLasBilleterasSegún unBlockChain = sum . map (billetera . cómoQuedaSegún (crearBloqueCon unBlockChain))
+sumarLasBilleterasSegún :: Bloque -> [Usuario] -> Billetera
+sumarLasBilleterasSegún unBloque = sum . map (billetera . cómoQuedaSegún unBloque)
 
 duplicarTransacciones :: Bloque -> Bloque
 duplicarTransacciones unBloque = unBloque ++ unBloque
@@ -218,7 +218,7 @@ pruebasConBlockChain = hspec $ do
     it "27.b - Cuando se pide el usuario en un punto que supera la cantidad de bloques de la BlockChain, el resultado es 115." $
       (billetera . cómoEstabaEn 210 blockChain1) pepe `shouldBe` 115
     it "28 - La suma de las billeteras de pepe y lucho cuando se les aplica la BlockChain es 115." $
-      laSumaDeLasBilleterasSegún blockChain1 [pepe,lucho] `shouldBe` 115
+      sumarLasBilleterasSegún (crearBloqueCon blockChain1) [pepe,lucho] `shouldBe` 115
     it "29 - Los bloques necesarios para alcanzar un saldo de 10000 con una BlockChain infinita creada a partir del bloque1, es de 11." $
       bloquesNecesariosParaAlcanzar 10000 listaDeBloquesInfinita pepe `shouldBe` 11
 
