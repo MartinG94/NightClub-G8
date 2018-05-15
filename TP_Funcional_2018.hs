@@ -140,22 +140,19 @@ quedanConUnSaldoDeAlMenos nroCréditos unBloque = filter ((>=nroCréditos).bille
 billeteraLuegoDe :: Bloque -> Usuario -> Billetera
 billeteraLuegoDe unBloque = billetera . cómoQuedaSegún unBloque
 
-mayor = (>=)
-menor = (<=)
+alMásAdineradoSegún :: Bloque -> [Usuario] -> Usuario -> Bool
+alMásAdineradoSegún unBloque losUsuarios elUsuario = all (<= billeteraLuegoDe unBloque elUsuario) (map (billeteraLuegoDe unBloque) losUsuarios)
 
-determinarEl criterio unaFunción unElemento otroElemento = criterio (unaFunción unElemento) (unaFunción otroElemento)
+alMenosAdineradoSegún :: Bloque -> [Usuario] -> Usuario -> Bool
+alMenosAdineradoSegún unBloque losUsuarios = not . alMásAdineradoSegún unBloque losUsuarios
 
-alMásAdineradoSegún :: Bloque -> Usuario -> Usuario -> Bool
-alMásAdineradoSegún unBloque = determinarEl mayor (billeteraLuegoDe unBloque)
+elPeorBloquePara :: Usuario -> [Bloque] -> Bloque -> Bool
+elPeorBloquePara unUsuario losBloques elBloque = all (>= (flip billeteraLuegoDe unUsuario elBloque)) (map (flip billeteraLuegoDe unUsuario) losBloques)
 
-alMenosAdineradoSegún :: Bloque -> Usuario -> Usuario -> Bool
-alMenosAdineradoSegún unBloque = determinarEl menor (billeteraLuegoDe unBloque)
+elMejorBloquePara :: Usuario -> [Bloque] -> Bloque -> Bool
+elMejorBloquePara unUsuario losBloques = not . elPeorBloquePara unUsuario losBloques
 
-elMásGrandeSegún unCriterio unaSemilla primerElemento segundoElemento
-        | unCriterio unaSemilla primerElemento segundoElemento = primerElemento
-        | otherwise = segundoElemento
-
-buscar elCriterioGenérico valorInicial = foldl1 (elMásGrandeSegún elCriterioGenérico valorInicial)
+buscar elCriterio valorInicial lista = (fromJust . find (elCriterio valorInicial lista)) lista
 
 pruebasConBloque1 = hspec $ do
   describe "Pruebas con bloque1." $ do
@@ -178,12 +175,6 @@ blockChain1 = [bloque2, bloque1, bloque1, bloque1, bloque1, bloque1, bloque1, bl
 
 crearBloqueCon :: BlockChain -> Bloque
 crearBloqueCon = concat
-
-elPeorBloquePara :: Usuario -> Bloque -> Bloque -> Bool
-elPeorBloquePara usuario = determinarEl menor (flip billeteraLuegoDe usuario)
-
-elMejorBloquePara :: Usuario -> Bloque -> Bloque -> Bool
-elMejorBloquePara usuario = determinarEl mayor (flip billeteraLuegoDe usuario)
 
 cómoEstabaEn :: Int -> BlockChain -> Usuario -> Usuario
 cómoEstabaEn ciertoPunto unBlockChain = cómoQuedaSegún (crearBloqueCon (take ciertoPunto unBlockChain))
