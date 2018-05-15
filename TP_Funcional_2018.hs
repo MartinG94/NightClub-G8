@@ -176,8 +176,11 @@ blockChain1 = [bloque2, bloque1, bloque1, bloque1, bloque1, bloque1, bloque1, bl
 crearBloqueCon :: BlockChain -> Bloque
 crearBloqueCon = concat
 
+aplicarBlockChain :: BlockChain -> Usuario -> Usuario
+aplicarBlockChain = cómoQuedaSegún . crearBloqueCon
+
 cómoEstabaEn :: Int -> BlockChain -> Usuario -> Usuario
-cómoEstabaEn ciertoPunto unBlockChain = cómoQuedaSegún (crearBloqueCon (take ciertoPunto unBlockChain))
+cómoEstabaEn ciertoPunto unBlockChain = aplicarBlockChain (take ciertoPunto unBlockChain)
 
 sumarLasBilleterasSegún :: Bloque -> [Usuario] -> Billetera
 sumarLasBilleterasSegún unBloque = sum . map (billetera . cómoQuedaSegún unBloque)
