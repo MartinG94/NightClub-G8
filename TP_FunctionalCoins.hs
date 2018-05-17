@@ -140,19 +140,24 @@ quedanConUnSaldoDeAlMenos nroCréditos unBloque = filter ((>=nroCréditos).bille
 billeteraLuegoDe :: Bloque -> Usuario -> Billetera
 billeteraLuegoDe unBloque = billetera . cómoQuedaSegún unBloque
 
-alMásAdineradoSegún :: Bloque -> [Usuario] -> Usuario -> Bool
-alMásAdineradoSegún unBloque losUsuarios elUsuario = all (<= billeteraLuegoDe unBloque elUsuario) (map (billeteraLuegoDe unBloque) losUsuarios)
+paraUsuarios = billeteraLuegoDe
+paraBloques = flip billeteraLuegoDe
 
-alMenosAdineradoSegún :: Bloque -> [Usuario] -> Usuario -> Bool
-alMenosAdineradoSegún unBloque losUsuarios = not . alMásAdineradoSegún unBloque losUsuarios
+criterioGenérico paraQuien lista bloque usuario = all ((paraQuien bloque) usuario >=) (map (paraQuien bloque) lista)
 
-elPeorBloquePara :: Usuario -> [Bloque] -> Bloque -> Bool
-elPeorBloquePara unUsuario losBloques elBloque = all (>= (flip billeteraLuegoDe unUsuario elBloque)) (map (flip billeteraLuegoDe unUsuario) losBloques)
+alMásAdineradoEntre :: [Usuario] -> Bloque -> Usuario -> Bool
+alMásAdineradoEntre listaUsuarios unBloque elUsuario = criterioGenérico paraUsuarios listaUsuarios unBloque elUsuario
 
-elMejorBloquePara :: Usuario -> [Bloque] -> Bloque -> Bool
-elMejorBloquePara unUsuario losBloques = not . elPeorBloquePara unUsuario losBloques
+alMenosAdineradoEntre :: [Usuario] -> Bloque -> Usuario -> Bool
+alMenosAdineradoEntre listaUsuarios unBloque = not . alMásAdineradoEntre listaUsuarios unBloque
 
-buscar elCriterio valorInicial lista = (fromJust . find (elCriterio valorInicial lista)) lista
+elMejorBloqueDe :: [Bloque] -> Usuario -> Bloque -> Bool
+elMejorBloqueDe listaBloques unUsuario elBloque = criterioGenérico paraBloques listaBloques unUsuario elBloque
+
+elPeorBloqueDe :: [Bloque] -> Usuario -> Bloque -> Bool
+elPeorBloqueDe listaBloques unUsuario = not . elMejorBloqueDe listaBloques unUsuario
+
+buscar elCriterio lista valorInicial = (fromJust . find (elCriterio lista valorInicial)) lista
 
 pruebasConBloque1 = hspec $ do
   describe "Pruebas con bloque1." $ do
@@ -161,9 +166,9 @@ pruebasConBloque1 = hspec $ do
     it "22 - A partir de pepe y lucho y el bloque1, solo pepe queda con un saldo de al menos 10." $
       quedanConUnSaldoDeAlMenos 10 bloque1 [pepe,lucho] `shouldBe` [pepe]
     it "23 - El más adinerado, cuando se les aplica el bloque1 a pepe y lucho es pepe." $
-      buscar alMásAdineradoSegún bloque1 [pepe,lucho] `shouldBe` pepe
+      buscar alMásAdineradoEntre [pepe,lucho] bloque1 `shouldBe` pepe
     it "24 - El menos adinerado, cuando se les aplica el bloque1 a pepe y lucho es lucho." $
-      buscar alMenosAdineradoSegún bloque1 [pepe,lucho] `shouldBe` lucho
+      buscar alMenosAdineradoEntre [pepe,lucho] bloque1 `shouldBe` lucho
 
 type BlockChain = [Bloque]
 
@@ -204,7 +209,7 @@ bloquesNecesariosParaAlcanzar unaCantidad unBlockInfinito usuario
 pruebasConBlockChain = hspec $ do
   describe "Pruebas con BlockChain." $ do
     it "25 - El peor bloque para pepe de la BlockChain lo deja con un saldo de 18." $
-      (billetera . cómoQuedaSegún (buscar elPeorBloquePara pepe blockChain1)) pepe `shouldBe` 18
+      (billetera . cómoQuedaSegún (buscar elPeorBloqueDe blockChain1 pepe)) pepe `shouldBe` 18
     it "26 - Pepe queda con 115 monedas cuando se le aplica la BlockChain." $
       (billetera . cómoQuedaSegún (crearBloqueCon blockChain1)) pepe `shouldBe` 115
     it "27 - Pepe queda con 51 monedas con los 3 primeros bloques de la BlockChain." $
