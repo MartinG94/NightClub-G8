@@ -145,16 +145,13 @@ type Criterio = Billetera -> Billetera -> Bool
 elMayor :: Criterio
 elMayor = (>=)
 
-elMenor :: Criterio
-elMenor = (<=)
-
 máximoSegún unCriterio función unaLista = (fromJust . find (\ e1 -> all (\ e2 -> unCriterio (función e1) (función e2)) unaLista)) unaLista
 
 elMásAdineradoSegún :: Bloque -> [Usuario] -> Usuario
 elMásAdineradoSegún unBloque = máximoSegún elMayor (billeteraLuegoDe unBloque)
 
 elMenosAdineradoSegún :: Bloque -> [Usuario] -> Usuario
-elMenosAdineradoSegún unBloque = máximoSegún elMenor (billeteraLuegoDe unBloque)
+elMenosAdineradoSegún unBloque = máximoSegún (flip elMayor) (billeteraLuegoDe unBloque)
 
 pruebasConBloque1 = hspec $ do
   describe "Pruebas con bloque1." $ do
@@ -185,10 +182,10 @@ cómoEstabaEn :: Int -> BlockChain -> Usuario -> Usuario
 cómoEstabaEn ciertoPunto unBlockChain = aplicarBlockChain (take ciertoPunto unBlockChain)
 
 elPeorBloquePara :: Usuario -> BlockChain -> Bloque
-elPeorBloquePara unUsuario = máximoSegún elMenor (flip billeteraLuegoDe unUsuario)
+elPeorBloquePara unUsuario = máximoSegún (flip elMayor) (flip billeteraLuegoDe unUsuario)
 
 elMejorBloquePara :: Usuario -> BlockChain -> Bloque
-elMejorBloquePara unUsuario = máximoSegún elMenor (flip billeteraLuegoDe unUsuario)
+elMejorBloquePara unUsuario = máximoSegún elMayor (flip billeteraLuegoDe unUsuario)
 
 sumarLasBilleterasSegún :: Bloque -> [Usuario] -> Billetera
 sumarLasBilleterasSegún unBloque = sum . map (billetera . cómoQuedaSegún unBloque)
