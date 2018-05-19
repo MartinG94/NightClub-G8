@@ -175,17 +175,17 @@ blockChain1 = [bloque2, bloque1, bloque1, bloque1, bloque1, bloque1, bloque1, bl
 crearBloqueCon :: BlockChain -> Bloque
 crearBloqueCon = concat
 
+elMejorBloquePara :: Usuario -> BlockChain -> Bloque
+elMejorBloquePara unUsuario = máximoSegún elMayor (flip billeteraLuegoDe unUsuario)
+
+elPeorBloquePara :: Usuario -> BlockChain -> Bloque
+elPeorBloquePara unUsuario = máximoSegún (flip elMayor) (flip billeteraLuegoDe unUsuario)
+
 aplicarBlockChain :: BlockChain -> Usuario -> Usuario
 aplicarBlockChain = cómoQuedaSegún . crearBloqueCon
 
 cómoEstabaEn :: Int -> BlockChain -> Usuario -> Usuario
 cómoEstabaEn ciertoPunto unBlockChain = aplicarBlockChain (take ciertoPunto unBlockChain)
-
-elPeorBloquePara :: Usuario -> BlockChain -> Bloque
-elPeorBloquePara unUsuario = máximoSegún (flip elMayor) (flip billeteraLuegoDe unUsuario)
-
-elMejorBloquePara :: Usuario -> BlockChain -> Bloque
-elMejorBloquePara unUsuario = máximoSegún elMayor (flip billeteraLuegoDe unUsuario)
 
 sumarLasBilleterasSegún :: Bloque -> [Usuario] -> Billetera
 sumarLasBilleterasSegún unBloque = sum . map (billetera . cómoQuedaSegún unBloque)
