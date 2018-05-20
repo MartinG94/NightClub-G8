@@ -25,7 +25,7 @@ quedaIgual :: Evento
 quedaIgual = id --Usen id que esta lindo
 
 pruebasConEventos = hspec $ do
-  describe "Pruebas de los eventos con una billetera de saldo 10." $ do
+  describe "Pruebas de los Eventos con una billetera de saldo 10." $ do
     it "1 - Al depositar 10, queda con 20." $ depósito 10 10 `shouldBe` 20
     it "2 - Al extraer 3, queda con 7." $ extracción 3 10 `shouldBe` 7
     it "3 - Al extraer 15, queda con 0." $ extracción 15 10 `shouldBe` 0
@@ -48,7 +48,7 @@ pepe = Usuario "José" 10
 lucho = Usuario "Luciano" 2
 
 pruebasConUsuarios = hspec $ do --Usar composición
-  describe "Pruebas con los usuarios." $ do
+  describe "Pruebas con los Usuarios." $ do
     it "8 - La billetera de pepe es de 10." $
       billetera pepe `shouldBe` 10
     it "9 - La billetera de Pepe, luego de un cierre de cuenta, es de 0." $
@@ -58,6 +58,7 @@ pruebasConUsuarios = hspec $ do --Usar composición
 
 type Transacción = Usuario -> Evento
 
+compararUsuario :: Usuario -> Usuario -> Bool
 compararUsuario usuarioAComparar usuario = nombre usuarioAComparar == nombre usuario
 
 crearUnaNuevaTransacción :: Usuario -> Evento -> Transacción --Armar una transaccion genérica que reciba dos usuarios y un evento
@@ -96,7 +97,7 @@ transacción5 :: Transacción
 transacción5 = crearPagosEntreUsuarios pepe 7 lucho
 
 pruebasConTransacciones = hspec $ do
-  describe "Pruebas con las transacciones." $ do
+  describe "Pruebas con las Transacciones." $ do
     it "11 - La transacción 1 se aplica a pepe, esto produce el evento Queda igual. Al aplicarlo a una billetera de 20, queda con 20." $
       transacción1 pepe 20 `shouldBe` 20
     it "12 - La transacción 2 se aplica a pepe, esto produce el evento depositar 5. Al aplicarlo a una billetera de 10, queda con 15." $
@@ -118,7 +119,7 @@ impactar :: Transacción -> Usuario -> Usuario
 impactar unaTransacción usuario = nuevaBilletera (unaTransacción usuario (billetera usuario)) usuario
 
 pruebasConImpactar = hspec $ do
-  describe "Pruebas con la nueva función impactar." $ do
+  describe "Pruebas con la nueva función Impactar." $ do
     it "18 - Impactar la transacción 1 a Pepe. Debería quedar igual que como está inicialmente." $
       impactar transacción1 pepe `shouldBe` pepe
     it "19 - Impactar la transacción 5 a Lucho. Debería producir que Lucho tenga 9 monedas en su billetera." $
@@ -134,18 +135,19 @@ bloque1 = [transacción1, transacción2, transacción2, transacción2, transacci
 cómoQuedaSegún :: Bloque -> Usuario -> Usuario
 cómoQuedaSegún unBloque usuario = foldr impactar usuario unBloque
 
-quedanConUnSaldoDeAlMenos :: Billetera -> Bloque -> [Usuario] -> [Usuario]
-quedanConUnSaldoDeAlMenos nroCréditos unBloque = filter ((>=nroCréditos).billetera.(cómoQuedaSegún unBloque))
-
 billeteraLuegoDe :: Bloque -> Usuario -> Billetera
 billeteraLuegoDe unBloque = billetera . cómoQuedaSegún unBloque
+
+quedanConUnSaldoDeAlMenos :: Billetera -> Bloque -> [Usuario] -> [Usuario]
+quedanConUnSaldoDeAlMenos nroCréditos unBloque = filter ((>=nroCréditos) . billeteraLuegoDe unBloque)
 
 type Criterio = Billetera -> Billetera -> Bool
 
 elMayor :: Criterio
 elMayor = (>=)
 
-máximoSegún unCriterio función unaLista = (fromJust . find (\ e1 -> all (\ e2 -> unCriterio (función e1) (función e2)) unaLista)) unaLista
+máximoSegún unCriterio función unaLista =
+  (fromJust . find (\ elemento1 -> all (\ elemento2 -> unCriterio (función elemento1) (función elemento2)) unaLista)) unaLista
 
 elMásAdineradoSegún :: Bloque -> [Usuario] -> Usuario
 elMásAdineradoSegún unBloque = máximoSegún elMayor (billeteraLuegoDe unBloque)
@@ -188,7 +190,7 @@ cómoEstabaEn :: Int -> BlockChain -> Usuario -> Usuario
 cómoEstabaEn ciertoPunto unBlockChain = aplicarBlockChain (take ciertoPunto unBlockChain)
 
 sumarLasBilleterasSegún :: Bloque -> [Usuario] -> Billetera
-sumarLasBilleterasSegún unBloque = sum . map (billetera . cómoQuedaSegún unBloque)
+sumarLasBilleterasSegún unBloque = sum . map (billeteraLuegoDe unBloque)
 
 duplicarTransacciones :: Bloque -> Bloque
 duplicarTransacciones unBloque = unBloque ++ unBloque
@@ -209,9 +211,9 @@ bloquesNecesariosParaAlcanzar unaCantidad unBlockInfinito usuario
 pruebasConBlockChain = hspec $ do
   describe "Pruebas con BlockChain." $ do
     it "25 - El peor bloque para pepe de la BlockChain lo deja con un saldo de 18." $
-      (billetera . cómoQuedaSegún (elPeorBloquePara pepe blockChain1)) pepe `shouldBe` 18
+      (billeteraLuegoDe (elPeorBloquePara pepe blockChain1)) pepe `shouldBe` 18
     it "26 - Pepe queda con 115 monedas cuando se le aplica la BlockChain." $
-      (billetera . cómoQuedaSegún (crearBloqueCon blockChain1)) pepe `shouldBe` 115
+      (billeteraLuegoDe (crearBloqueCon blockChain1)) pepe `shouldBe` 115
     it "27 - Pepe queda con 51 monedas con los 3 primeros bloques de la BlockChain." $
       (billetera . cómoEstabaEn 3 blockChain1) pepe `shouldBe` 51
     it "27.b - Cuando se pide el usuario en un punto que supera la cantidad de bloques de la BlockChain, el resultado es 115." $
