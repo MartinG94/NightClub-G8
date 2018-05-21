@@ -141,22 +141,17 @@ billeteraLuegoDe unBloque = billetera . cómoQuedaSegún unBloque
 quedanConUnSaldoDeAlMenos :: Billetera -> Bloque -> [Usuario] -> [Usuario]
 quedanConUnSaldoDeAlMenos nroCréditos unBloque = filter ((>=nroCréditos) . billeteraLuegoDe unBloque)
 
-type Criterio = Billetera -> Billetera -> Bool
-
-elMayor :: Criterio
-elMayor = (>=)
-
-máximoSegún unCriterio función unaLista =
-  (fromJust . find (\ elemento1 -> all (\ elemento2 -> unCriterio (función elemento1) (función elemento2)) unaLista)) unaLista
+máximoSegún función unaLista =
+  (fromJust . find (\ elemento1 -> all (\ elemento2 -> función elemento1 >= función elemento2) unaLista)) unaLista
 
 elMásAdineradoSegún :: Bloque -> [Usuario] -> Usuario
-elMásAdineradoSegún unBloque = máximoSegún elMayor (billeteraLuegoDe unBloque)
+elMásAdineradoSegún unBloque = máximoSegún (billeteraLuegoDe unBloque)
 
 elMenosAdineradoSegún :: Bloque -> [Usuario] -> Usuario
-elMenosAdineradoSegún unBloque = máximoSegún (flip elMayor) (billeteraLuegoDe unBloque)
+elMenosAdineradoSegún unBloque = máximoSegún ((*) (-1) . billeteraLuegoDe unBloque)
 
 pruebasConBloque1 = hspec $ do
-  describe "Pruebas con bloque1." $ do
+  describe "Pruebas con Bloque1." $ do
     it "21 - A partir del bloque 1 y pepe, debería quedar con su mismo nombre, pero con una billetera de 18." $
       cómoQuedaSegún bloque1 pepe `shouldBe` nuevaBilletera 18 pepe
     it "22 - A partir de pepe y lucho y el bloque1, solo pepe queda con un saldo de al menos 10." $
@@ -178,10 +173,10 @@ crearBloqueCon :: BlockChain -> Bloque
 crearBloqueCon = concat
 
 elMejorBloquePara :: Usuario -> BlockChain -> Bloque
-elMejorBloquePara unUsuario = máximoSegún elMayor (flip billeteraLuegoDe unUsuario)
+elMejorBloquePara unUsuario = máximoSegún (flip billeteraLuegoDe unUsuario)
 
 elPeorBloquePara :: Usuario -> BlockChain -> Bloque
-elPeorBloquePara unUsuario = máximoSegún (flip elMayor) (flip billeteraLuegoDe unUsuario)
+elPeorBloquePara unUsuario = máximoSegún ((*) (-1) . flip billeteraLuegoDe unUsuario)
 
 aplicarBlockChain :: BlockChain -> Usuario -> Usuario
 aplicarBlockChain = cómoQuedaSegún . crearBloqueCon
