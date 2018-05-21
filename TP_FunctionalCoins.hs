@@ -26,7 +26,7 @@ quedaIgual :: Evento
 quedaIgual = id --Usen id que esta lindo
 
 pruebasConEventos = hspec $ do
-  describe "Pruebas de los Eventos con una billetera de saldo 10." $ do
+  describe "Pruebas de los Eventos con una Billetera de saldo 10." $ do
     it "1 - Al depositar 10, queda con 20." $ depósito 10 10 `shouldBe` 20
     it "2 - Al extraer 3, queda con 7." $ extracción 3 10 `shouldBe` 7
     it "3 - Al extraer 15, queda con 0." $ extracción 15 10 `shouldBe` 0
@@ -182,7 +182,9 @@ elPeorBloquePara unUsuario = máximoSegún ((*) (-1) . flip billeteraLuegoDe unU
 aplicarBlockChain :: BlockChain -> Usuario -> Usuario
 aplicarBlockChain = cómoQuedaSegún . crearBloqueCon
 
-cómoEstabaEn :: Int -> BlockChain -> Usuario -> Usuario
+type Posición = Int
+
+cómoEstabaEn :: Posición -> BlockChain -> Usuario -> Usuario
 cómoEstabaEn ciertoPunto unBlockChain = aplicarBlockChain (take ciertoPunto unBlockChain)
 
 sumarLasBilleterasSegún :: Bloque -> [Usuario] -> Dinero
@@ -197,9 +199,7 @@ generarBlockInfinito unBloque = unBloque : (generarBlockInfinito . duplicarTrans
 listaDeBloquesInfinita :: BlockChain
 listaDeBloquesInfinita = generarBlockInfinito bloque1
 
-{- Conceptos Utilizados: Recursividad y Orden Superior -}
-
-bloquesNecesariosParaAlcanzar :: Dinero -> BlockChain -> Usuario -> Int
+bloquesNecesariosParaAlcanzar :: Dinero -> BlockChain -> Usuario -> Posición
 bloquesNecesariosParaAlcanzar unaCantidad unBlockInfinito usuario
         | ((>unaCantidad) . billetera . cómoEstabaEn 1 unBlockInfinito) usuario = 0
         | otherwise = 1 + bloquesNecesariosParaAlcanzar unaCantidad (tail unBlockInfinito) usuario
@@ -207,9 +207,9 @@ bloquesNecesariosParaAlcanzar unaCantidad unBlockInfinito usuario
 pruebasConBlockChain = hspec $ do
   describe "Pruebas con BlockChain." $ do
     it "25 - El peor bloque para pepe de la BlockChain lo deja con un saldo de 18." $
-      (billeteraLuegoDe (elPeorBloquePara pepe blockChain1)) pepe `shouldBe` 18
+      billeteraLuegoDe (elPeorBloquePara pepe blockChain1) pepe `shouldBe` 18
     it "26 - Pepe queda con 115 monedas cuando se le aplica la BlockChain." $
-      (billeteraLuegoDe (crearBloqueCon blockChain1)) pepe `shouldBe` 115
+      billeteraLuegoDe (crearBloqueCon blockChain1) pepe `shouldBe` 115
     it "27 - Pepe queda con 51 monedas con los 3 primeros bloques de la BlockChain." $
       (billetera . cómoEstabaEn 3 blockChain1) pepe `shouldBe` 51
     it "27.b - Cuando se pide el usuario en un punto que supera la cantidad de bloques de la BlockChain, el resultado es 115." $
@@ -218,6 +218,14 @@ pruebasConBlockChain = hspec $ do
       sumarLasBilleterasSegún (crearBloqueCon blockChain1) [pepe,lucho] `shouldBe` 115
     it "29 - Los bloques necesarios para alcanzar un saldo de 10000 con una BlockChain infinita creada a partir del bloque1, es de 11." $
       bloquesNecesariosParaAlcanzar 10000 listaDeBloquesInfinita pepe `shouldBe` 11
+
+{-
+Concepto Clave para este tipo de consultas [Test 29]: Evaluación Diferida.
+  Este test es posible gracias a la Evaluación Diferida/Perezosa de Haskell.
+  Ya que va evaluando la lista a medida que se va creando, aunque en este caso no se muestre en consola como se crea la lista.
+  No espera a procesar la lista en su totalidad, para luego aplicar la función.
+  Esto no sería posible en otros lenguajes de programación.
+-}
 
 ejecutarTests = do
   pruebasConEventos
