@@ -6,13 +6,14 @@ import Test.Hspec
 
 -- 1ra Parte
 
-type Billetera = Float
+type Dinero = Float
+type Billetera = Dinero
 type Evento = Billetera -> Billetera --Revisar el tipo de evento
 
-depósito :: Billetera -> Evento
+depósito :: Dinero -> Evento
 depósito = (+)
 
-extracción :: Billetera -> Evento
+extracción :: Dinero -> Evento
 extracción dineroARetirar = max 0 . depósito ( -dineroARetirar)
 
 upgrade :: Evento
@@ -87,7 +88,7 @@ transacción3 = crearUnaNuevaTransacción lucho tocoYMeVoy
 transacción4 :: Transacción
 transacción4 = crearUnaNuevaTransacción lucho ahorranteErrante
 
-crearPagosEntreUsuarios :: Usuario -> Billetera -> Usuario -> Transacción --Modelar partiendo del ejemplo anterior
+crearPagosEntreUsuarios :: Usuario -> Dinero -> Usuario -> Transacción --Modelar partiendo del ejemplo anterior
 crearPagosEntreUsuarios usuarioExtracción cantidadDeUnidades usuarioDepósito usuario
         | compararUsuario usuarioExtracción usuario =  extracción cantidadDeUnidades
         | compararUsuario usuarioDepósito usuario = depósito cantidadDeUnidades
@@ -138,7 +139,7 @@ cómoQuedaSegún unBloque usuario = foldr impactar usuario unBloque
 billeteraLuegoDe :: Bloque -> Usuario -> Billetera
 billeteraLuegoDe unBloque = billetera . cómoQuedaSegún unBloque
 
-quedanConUnSaldoDeAlMenos :: Billetera -> Bloque -> [Usuario] -> [Usuario]
+quedanConUnSaldoDeAlMenos :: Dinero -> Bloque -> [Usuario] -> [Usuario]
 quedanConUnSaldoDeAlMenos nroCréditos unBloque = filter ((>=nroCréditos) . billeteraLuegoDe unBloque)
 
 máximoSegún función unaLista =
@@ -184,7 +185,7 @@ aplicarBlockChain = cómoQuedaSegún . crearBloqueCon
 cómoEstabaEn :: Int -> BlockChain -> Usuario -> Usuario
 cómoEstabaEn ciertoPunto unBlockChain = aplicarBlockChain (take ciertoPunto unBlockChain)
 
-sumarLasBilleterasSegún :: Bloque -> [Usuario] -> Billetera
+sumarLasBilleterasSegún :: Bloque -> [Usuario] -> Dinero
 sumarLasBilleterasSegún unBloque = sum . map (billeteraLuegoDe unBloque)
 
 duplicarTransacciones :: Bloque -> Bloque
@@ -198,7 +199,7 @@ listaDeBloquesInfinita = generarBlockInfinito bloque1
 
 {- Conceptos Utilizados: Recursividad y Orden Superior -}
 
-bloquesNecesariosParaAlcanzar :: Billetera -> BlockChain -> Usuario -> Int
+bloquesNecesariosParaAlcanzar :: Dinero -> BlockChain -> Usuario -> Int
 bloquesNecesariosParaAlcanzar unaCantidad unBlockInfinito usuario
         | ((>unaCantidad) . billetera . cómoEstabaEn 1 unBlockInfinito) usuario = 0
         | otherwise = 1 + bloquesNecesariosParaAlcanzar unaCantidad (tail unBlockInfinito) usuario
