@@ -202,9 +202,9 @@ listaDeBloquesInfinita :: BlockChain
 listaDeBloquesInfinita = generarBlockInfinito bloque1
 
 bloquesNecesariosParaAlcanzar :: Dinero -> BlockChain -> Usuario -> Posición
-bloquesNecesariosParaAlcanzar unaCantidad unBlockInfinito usuario
-        | ((>unaCantidad) . billetera . cómoEstabaEn 1 unBlockInfinito) usuario = 0
-        | otherwise = 1 + bloquesNecesariosParaAlcanzar unaCantidad (tail unBlockInfinito) usuario
+bloquesNecesariosParaAlcanzar unMonto (unBloque : blockChain) usuario
+  | ((>= unMonto) . billeteraLuegoDe unBloque) usuario = 1
+  | otherwise = 1 + bloquesNecesariosParaAlcanzar (unMonto - billeteraLuegoDe unBloque usuario) blockChain usuario
 
 pruebasConBlockChain = hspec $ do
   describe "Pruebas con BlockChain." $ do
