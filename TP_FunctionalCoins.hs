@@ -142,9 +142,11 @@ billeteraLuegoDe unBloque = billetera . cómoQuedaSegún unBloque
 quedanConUnSaldoDeAlMenos :: Dinero -> Bloque -> [Usuario] -> [Usuario]
 quedanConUnSaldoDeAlMenos nroCréditos unBloque = filter ((>=nroCréditos) . billeteraLuegoDe unBloque)
 
+máximoSegún :: (Num b, Ord b) => (a -> b) -> [a] -> a
 máximoSegún unCriterio unaLista =
   (fromJust . find (\ elemento1 -> all (\ elemento2 -> unCriterio elemento1 >= unCriterio elemento2) unaLista)) unaLista
 
+mínimoSegún :: (Num b, Ord b) => (a -> b) -> [a] -> a
 mínimoSegún unCriterio = máximoSegún ((*) (-1) . unCriterio)
 
 elMásAdineradoSegún :: Bloque -> [Usuario] -> Usuario
