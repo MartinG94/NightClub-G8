@@ -142,14 +142,16 @@ billeteraLuegoDe unBloque = billetera . cómoQuedaSegún unBloque
 quedanConUnSaldoDeAlMenos :: Dinero -> Bloque -> [Usuario] -> [Usuario]
 quedanConUnSaldoDeAlMenos nroCréditos unBloque = filter ((>=nroCréditos) . billeteraLuegoDe unBloque)
 
-máximoSegún función unaLista =
-  (fromJust . find (\ elemento1 -> all (\ elemento2 -> función elemento1 >= función elemento2) unaLista)) unaLista
+máximoSegún unCriterio unaLista =
+  (fromJust . find (\ elemento1 -> all (\ elemento2 -> unCriterio elemento1 >= unCriterio elemento2) unaLista)) unaLista
+
+mínimoSegún unCriterio = máximoSegún ((*) (-1) . unCriterio)
 
 elMásAdineradoSegún :: Bloque -> [Usuario] -> Usuario
 elMásAdineradoSegún unBloque = máximoSegún (billeteraLuegoDe unBloque)
 
 elMenosAdineradoSegún :: Bloque -> [Usuario] -> Usuario
-elMenosAdineradoSegún unBloque = máximoSegún ((*) (-1) . billeteraLuegoDe unBloque)
+elMenosAdineradoSegún unBloque = mínimoSegún (billeteraLuegoDe unBloque)
 
 pruebasConBloque1 = hspec $ do
   describe "Pruebas con Bloque1." $ do
@@ -177,7 +179,7 @@ elMejorBloquePara :: Usuario -> BlockChain -> Bloque
 elMejorBloquePara unUsuario = máximoSegún (flip billeteraLuegoDe unUsuario)
 
 elPeorBloquePara :: Usuario -> BlockChain -> Bloque
-elPeorBloquePara unUsuario = máximoSegún ((*) (-1) . flip billeteraLuegoDe unUsuario)
+elPeorBloquePara unUsuario = mínimoSegún (flip billeteraLuegoDe unUsuario)
 
 aplicarBlockChain :: BlockChain -> Usuario -> Usuario
 aplicarBlockChain = cómoQuedaSegún . crearBloqueCon
