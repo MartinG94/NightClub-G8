@@ -8,7 +8,7 @@ import Test.Hspec
 
 type Dinero = Float
 type Billetera = Dinero
-type Evento = Billetera -> Billetera --Revisar el tipo de evento
+type Evento = Billetera -> Billetera
 
 depósito :: Dinero -> Evento
 depósito = (+)
@@ -17,13 +17,13 @@ extracción :: Dinero -> Evento
 extracción dineroARetirar = max 0 . depósito ( -dineroARetirar)
 
 upgrade :: Evento
-upgrade billeteraUsuario = (depósito billeteraUsuario . min 10 . (*0.2)) billeteraUsuario --Tratar de usar min
+upgrade billeteraUsuario = (depósito billeteraUsuario . min 10 . (*0.2)) billeteraUsuario
 
 cierreDeCuenta :: Evento
 cierreDeCuenta _ = 0
 
 quedaIgual :: Evento
-quedaIgual = id --Usen id que esta lindo
+quedaIgual = id
 
 pruebasConEventos = hspec $ do
   describe "Pruebas de los Eventos con una Billetera de saldo 10." $ do
@@ -48,7 +48,7 @@ nuevaBilletera otroSaldo usuario = usuario {billetera = otroSaldo}
 pepe = Usuario "José" 10
 lucho = Usuario "Luciano" 2
 
-pruebasConUsuarios = hspec $ do --Usar composición
+pruebasConUsuarios = hspec $ do
   describe "Pruebas con los Usuarios." $ do
     it "8 - La billetera de pepe es de 10." $
       billetera pepe `shouldBe` 10
@@ -62,7 +62,7 @@ type Transacción = Usuario -> Evento
 compararUsuario :: Usuario -> Usuario -> Bool
 compararUsuario usuarioAComparar usuario = nombre usuarioAComparar == nombre usuario
 
-crearUnaNuevaTransacción :: Usuario -> Evento -> Transacción --Armar una transaccion genérica que reciba dos usuarios y un evento
+crearUnaNuevaTransacción :: Usuario -> Evento -> Transacción
 crearUnaNuevaTransacción usuarioAComparar unEvento usuario
       | compararUsuario usuarioAComparar usuario = unEvento
       | otherwise = quedaIgual
@@ -88,7 +88,7 @@ transacción3 = crearUnaNuevaTransacción lucho tocoYMeVoy
 transacción4 :: Transacción
 transacción4 = crearUnaNuevaTransacción lucho ahorranteErrante
 
-crearPagosEntreUsuarios :: Usuario -> Dinero -> Usuario -> Transacción --Modelar partiendo del ejemplo anterior
+crearPagosEntreUsuarios :: Usuario -> Dinero -> Usuario -> Transacción
 crearPagosEntreUsuarios usuarioExtracción cantidadDeUnidades usuarioDepósito usuario
         | compararUsuario usuarioExtracción usuario =  extracción cantidadDeUnidades
         | compararUsuario usuarioDepósito usuario = depósito cantidadDeUnidades
