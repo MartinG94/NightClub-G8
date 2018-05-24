@@ -124,9 +124,9 @@ pruebasConImpactar = hspec $ do
     it "18 - Impactar la transacción 1 a Pepe. Debería quedar igual que como está inicialmente." $
       impactar transacción1 pepe `shouldBe` pepe
     it "19 - Impactar la transacción 5 a Lucho. Debería producir que Lucho tenga 9 monedas en su billetera." $
-      impactar transacción5 lucho `shouldBe` nuevaBilletera 9 lucho
+      (billetera . impactar transacción5) lucho `shouldBe` 9
     it "20 - Impactar la transacción 5 y luego la 2 a Pepe. Eso hace que tenga 8 en su billetera." $
-      (impactar transacción2 . impactar transacción5) pepe `shouldBe` nuevaBilletera 8 pepe
+      (billetera . impactar transacción2 . impactar transacción5) pepe `shouldBe` 8
 
 type Bloque = [Transacción]
 
@@ -154,7 +154,7 @@ elMenosAdineradoSegún unBloque = máximoSegún ((*) (-1) . billeteraLuegoDe unB
 pruebasConBloque1 = hspec $ do
   describe "Pruebas con Bloque1." $ do
     it "21 - A partir del bloque 1 y pepe, debería quedar con su mismo nombre, pero con una billetera de 18." $
-      cómoQuedaSegún bloque1 pepe `shouldBe` nuevaBilletera 18 pepe
+      billeteraLuegoDe bloque1 pepe `shouldBe` 18
     it "22 - A partir de pepe y lucho y el bloque1, solo pepe queda con un saldo de al menos 10." $
       quedanConUnSaldoDeAlMenos 10 bloque1 [pepe,lucho] `shouldBe` [pepe]
     it "23 - El más adinerado, cuando se les aplica el bloque1 a pepe y lucho es pepe." $
