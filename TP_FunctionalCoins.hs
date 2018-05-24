@@ -165,10 +165,10 @@ pruebasConBloque1 = hspec $ do
 type BlockChain = [Bloque]
 
 bloque2 :: Bloque
-bloque2 = [transacción2, transacción2, transacción2, transacción2, transacción2]
+bloque2 = replicate 5 transacción2
 
 blockChain1 :: BlockChain
-blockChain1 = [bloque2, bloque1, bloque1, bloque1, bloque1, bloque1, bloque1, bloque1, bloque1, bloque1, bloque1]
+blockChain1 = bloque2 : replicate 10 bloque1
 
 crearBloqueCon :: BlockChain -> Bloque
 crearBloqueCon = concat
