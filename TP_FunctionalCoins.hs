@@ -179,16 +179,16 @@ elMejorBloquePara unUsuario = máximoSegún (flip billeteraLuegoDe unUsuario)
 elPeorBloquePara :: Usuario -> BlockChain -> Bloque
 elPeorBloquePara unUsuario = máximoSegún ((*) (-1) . flip billeteraLuegoDe unUsuario)
 
-aplicarBlockChain :: BlockChain -> Usuario -> Usuario
-aplicarBlockChain = cómoQuedaSegún . crearBloqueCon
+aplicarBlockChainAUsuarios :: BlockChain -> Usuario -> Usuario
+aplicarBlockChainAUsuarios = cómoQuedaSegún . crearBloqueCon
 
 type Posición = Int
 
 cómoEstabaEn :: Posición -> BlockChain -> Usuario -> Usuario
-cómoEstabaEn ciertoPunto unBlockChain = aplicarBlockChain (take ciertoPunto unBlockChain)
+cómoEstabaEn ciertoPunto unBlockChain = aplicarBlockChainAUsuarios (take ciertoPunto unBlockChain)
 
-sumarLasBilleterasSegún :: Bloque -> [Usuario] -> Dinero
-sumarLasBilleterasSegún unBloque = sum . map (billeteraLuegoDe unBloque)
+sumarLasBilleterasSegún :: BlockChain -> [Usuario] -> Dinero
+sumarLasBilleterasSegún unBlock = sum . map (billetera . aplicarBlockChainAUsuarios unBlock)
 
 duplicarTransacciones :: Bloque -> Bloque
 duplicarTransacciones unBloque = unBloque ++ unBloque
@@ -215,7 +215,7 @@ pruebasConBlockChain = hspec $ do
     it "27.b - Cuando se pide el usuario en un punto que supera la cantidad de bloques de la BlockChain, el resultado es 115." $
       (billetera . cómoEstabaEn 210 blockChain1) pepe `shouldBe` 115
     it "28 - La suma de las billeteras de pepe y lucho cuando se les aplica la BlockChain es 115." $
-      sumarLasBilleterasSegún (crearBloqueCon blockChain1) [pepe,lucho] `shouldBe` 115
+      sumarLasBilleterasSegún blockChain1 [pepe,lucho] `shouldBe` 115
     it "29 - Los bloques necesarios para alcanzar un saldo de 10000 con una BlockChain infinita creada a partir del bloque1, es de 11." $
       bloquesNecesariosParaAlcanzar 10000 listaDeBloquesInfinita pepe `shouldBe` 11
 
