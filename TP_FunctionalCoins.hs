@@ -4,7 +4,7 @@ import Data.List
 import Data.Maybe
 import Test.Hspec
 
--- 1ra Parte
+-- Primera Entrega
 
 type Dinero = Float
 type Billetera = Dinero
@@ -57,17 +57,16 @@ pruebasConUsuarios = hspec $ do
     it "10 - La billetera de Pepe si le depositan 15, extrae 2, y tiene un Upgrade, es de 27.6." $
       (upgrade . extracción 2 . depósito 15 . billetera) pepe `shouldBe` 27.6
 
-type Transacción = Usuario -> Evento
-
 compararUsuario :: Usuario -> Usuario -> Bool
 compararUsuario usuarioAComparar usuario = nombre usuarioAComparar == nombre usuario
+
+type Transacción = Usuario -> Evento
 
 crearUnaNuevaTransacción :: Usuario -> Evento -> Transacción
 crearUnaNuevaTransacción usuarioAComparar unEvento usuario
       | compararUsuario usuarioAComparar usuario = unEvento
       | otherwise = quedaIgual
 
--- Fijarse como modelar las transacciones
 transacción1 :: Transacción
 transacción1 = crearUnaNuevaTransacción lucho cierreDeCuenta
 
@@ -114,7 +113,7 @@ pruebasConTransacciones = hspec $ do
     it "17 - La transacción 5 se aplica a lucho, esto produce el evento de depósito 7. Al aplicarlo a una billetera de 10, queda con 17." $
       transacción5 lucho 10 `shouldBe` 17
 
--- 2da Parte
+-- Segnda Entrega
 
 impactar :: Transacción -> Usuario -> Usuario
 impactar unaTransacción usuario = nuevaBilletera (unaTransacción usuario (billetera usuario)) usuario
