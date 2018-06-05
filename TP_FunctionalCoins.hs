@@ -4,7 +4,7 @@ import Data.List
 import Data.Maybe
 import Test.Hspec
 
--- Primera Entrega
+{-------------------- PRIMERA ENTREGA --------------------}
 
 type Dinero = Float
 type Billetera = Dinero
@@ -113,7 +113,7 @@ pruebasConTransacciones = hspec $ do
     it "17 - La transacción 5 se aplica a lucho, esto produce el evento de depósito 7. Al aplicarlo a una billetera de 10, queda con 17." $
       transacción5 lucho 10 `shouldBe` 17
 
--- Segnda Entrega
+{-------------------- SEGUNDA ENTREGA --------------------}
 
 impactar :: Transacción -> Usuario -> Usuario
 impactar unaTransacción usuario = nuevaBilletera (unaTransacción usuario (billetera usuario)) usuario
